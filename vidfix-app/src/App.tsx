@@ -189,7 +189,10 @@ function App() {
           fps: settings.fps,
           audio: settings.audio,
           audioBitrate: settings.audioBitrate,
-          outputDir: currentDir
+          outputDir: currentDir,
+          outputToNewDir: settings.outputToNewDir,
+          filenamePattern: settings.filenamePattern,
+          deleteOriginal: settings.deleteOriginal
         })
 
         // Update Status basierend auf Erfolg

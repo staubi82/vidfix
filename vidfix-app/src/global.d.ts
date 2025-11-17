@@ -40,6 +40,9 @@ declare global {
     audio: string
     audioBitrate: string
     outputDir: string
+    outputToNewDir: boolean
+    filenamePattern: 'original' | 'suffix' | 'prefix'
+    deleteOriginal: boolean
   }
 
   interface VideoMetadata {

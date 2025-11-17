@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join } from 'path'
+import { join, basename, extname } from 'path'
 import { spawn, ChildProcess } from 'child_process'
-import { readdirSync, statSync, readFileSync, lstatSync } from 'fs'
+import { readdirSync, statSync, readFileSync, lstatSync, unlinkSync, mkdirSync, existsSync } from 'fs'
 import * as os from 'os'
 
 let mainWindow: BrowserWindow | null = null
@@ -263,6 +263,164 @@ async function getSystemStats() {
   return stats
 }
 
+// Helper function: Calculate output path based on settings
+function calculateOutputPath(
+  inputPath: string,
+  outputDir: string,
+  outputToNewDir: boolean,
+  filenamePattern: 'original' | 'suffix' | 'prefix'
+): string {
+  const dir = outputToNewDir ? join(outputDir, 'transcoded') : outputDir
+  const nameWithoutExt = basename(inputPath, extname(inputPath))
+  const ext = '.mov' // Always output as .mov for compatibility
+
+  // Create output directory if needed
+  if (outputToNewDir && !existsSync(dir)) {
+    mkdirSync(dir, { recursive: true })
+  }
+
+  let outputName: string
+  switch (filenamePattern) {
+    case 'original':
+      outputName = nameWithoutExt + ext
+      break
+    case 'suffix':
+      outputName = `${nameWithoutExt}_fixed${ext}`
+      break
+    case 'prefix':
+      outputName = `fixed_${nameWithoutExt}${ext}`
+      break
+  }
+
+  return join(dir, outputName)
+}
+
+// Helper function: Get video duration in seconds using ffprobe
+async function getVideoDuration(filePath: string): Promise<number> {
+  return new Promise((resolve) => {
+    const ffprobe = spawn('ffprobe', [
+      '-v', 'error',
+      '-show_entries', 'format=duration',
+      '-of', 'default=noprint_wrappers=1:nokey=1',
+      filePath
+    ])
+
+    let output = ''
+    ffprobe.stdout.on('data', (data) => {
+      output += data.toString()
+    })
+
+    ffprobe.on('close', () => {
+      const duration = parseFloat(output.trim())
+      resolve(isNaN(duration) ? 0 : duration)
+    })
+
+    ffprobe.on('error', () => {
+      resolve(0)
+    })
+  })
+}
+
+// Helper function: Format seconds to MM:SS
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+}
+
+// Helper function: Build ffmpeg arguments based on codec and settings
+function buildFfmpegArgs(
+  inputPath: string,
+  outputPath: string,
+  codec: string,
+  resolution: string,
+  fps: string,
+  audio: string,
+  audioBitrate: string
+): string[] {
+  const args: string[] = [
+    '-i', inputPath,
+    '-y', // Overwrite output file
+    '-progress', 'pipe:2' // Send progress to stderr
+  ]
+
+  // Video filters
+  const filters: string[] = []
+
+  // Resolution filter
+  if (resolution !== 'original') {
+    const [width, height] = resolution.split('x')
+    filters.push(`scale='min(${width},iw)':'min(${height},ih)':force_original_aspect_ratio=decrease`)
+  }
+
+  // Apply filters if any
+  if (filters.length > 0) {
+    args.push('-vf', filters.join(','))
+  }
+
+  // FPS
+  if (fps !== 'original') {
+    args.push('-r', fps)
+  }
+
+  // Video codec specific parameters
+  switch (codec) {
+    case 'dnxhr_sq':
+      args.push('-c:v', 'dnxhd', '-profile:v', 'dnxhr_sq', '-pix_fmt', 'yuv422p')
+      break
+    case 'dnxhr_hq':
+      args.push('-c:v', 'dnxhd', '-profile:v', 'dnxhr_hq', '-pix_fmt', 'yuv422p')
+      break
+    case 'dnxhr_hqx':
+      args.push('-c:v', 'dnxhd', '-profile:v', 'dnxhr_hqx', '-pix_fmt', 'yuv422p10le')
+      break
+    case 'prores':
+      args.push('-c:v', 'prores_ks', '-profile:v', '2', '-pix_fmt', 'yuv422p10le')
+      break
+    case 'h264':
+      args.push('-c:v', 'libx264', '-preset', 'medium', '-crf', '23')
+      break
+    case 'h265':
+      args.push('-c:v', 'libx265', '-preset', 'medium', '-crf', '28')
+      break
+    case 'vp9':
+      args.push('-c:v', 'libvpx-vp9', '-crf', '30', '-b:v', '0')
+      break
+    case 'av1':
+      args.push('-c:v', 'libaom-av1', '-crf', '30', '-b:v', '0')
+      break
+  }
+
+  // Audio codec
+  switch (audio) {
+    case 'pcm':
+      args.push('-c:a', 'pcm_s16le')
+      break
+    case 'aac':
+      args.push('-c:a', 'aac', '-b:a', audioBitrate)
+      break
+    case 'mp3':
+      args.push('-c:a', 'libmp3lame', '-b:a', audioBitrate)
+      break
+    case 'flac':
+      args.push('-c:a', 'flac')
+      break
+    case 'opus':
+      args.push('-c:a', 'libopus', '-b:a', audioBitrate)
+      break
+    case 'vorbis':
+      args.push('-c:a', 'libvorbis', '-b:a', audioBitrate)
+      break
+    case 'copy':
+      args.push('-c:a', 'copy')
+      break
+  }
+
+  args.push(outputPath)
+
+  return args
+}
+
 // IPC Handlers
 
 // Get system stats
@@ -285,7 +443,6 @@ ipcMain.handle('get-home-dir', async () => {
     }
   }
 
-  console.log('Home directory:', homeDir, '| USER:', process.env.USER, '| HOME:', process.env.HOME)
   return homeDir
 })
 
@@ -379,52 +536,121 @@ ipcMain.handle('get-video-info', async (_, filePath: string) => {
 
 // Start transcoding
 ipcMain.handle('start-transcode', async (_, options: any) => {
-  console.log('Starting transcode with options:', options)
+  // Process each file (should be only one per call from App.tsx)
+  const inputFile = options.files[0]
+  if (!inputFile) {
+    return Promise.reject(new Error('No input file provided'))
+  }
+
+  // Get video duration first
+  const totalDuration = await getVideoDuration(inputFile)
 
   return new Promise((resolve, reject) => {
-    const scriptPath = join(__dirname, '../../vidfix')
-    console.log('Script path:', scriptPath)
-    console.log('Output dir:', options.outputDir)
+    // Calculate output path
+    const outputPath = calculateOutputPath(
+      inputFile,
+      options.outputDir,
+      options.outputToNewDir,
+      options.filenamePattern
+    )
 
-    // Start vidfix script in quick mode
-    const vidfix = spawn(scriptPath, ['-go'], {
-      cwd: options.outputDir,
-      shell: true,
-      env: {
-        ...process.env,
-        FILES: JSON.stringify(options.files),
-        CODEC: options.codec,
-        RESOLUTION: options.resolution,
-        FPS: options.fps,
-        AUDIO: options.audio,
-        AUDIO_BITRATE: options.audioBitrate
+    // Build ffmpeg arguments
+    const ffmpegArgs = buildFfmpegArgs(
+      inputFile,
+      outputPath,
+      options.codec,
+      options.resolution,
+      options.fps,
+      options.audio,
+      options.audioBitrate
+    )
+
+    // Start ffmpeg
+    const ffmpeg = spawn('ffmpeg', ffmpegArgs)
+
+    let progressBuffer = ''
+    let currentFps = 0
+    let currentTime = 0
+
+    ffmpeg.stdout.on('data', () => {
+      // ffmpeg output handled via stderr progress
+    })
+
+    ffmpeg.stderr.on('data', (data) => {
+      const line = data.toString()
+      progressBuffer += line
+
+      // Parse progress from ffmpeg output
+      const progressLines = progressBuffer.split('\n')
+      progressBuffer = progressLines.pop() || '' // Keep incomplete line in buffer
+
+      for (const pLine of progressLines) {
+        // Parse out_time_ms (time in microseconds)
+        const timeMatch = pLine.match(/out_time_ms=(\d+)/)
+        if (timeMatch) {
+          currentTime = parseInt(timeMatch[1]) / 1000000 // Convert to seconds
+        }
+
+        // Parse fps
+        const fpsMatch = pLine.match(/fps=\s*([\d.]+)/)
+        if (fpsMatch) {
+          currentFps = Math.round(parseFloat(fpsMatch[1]))
+        }
+
+        // When we have progress=continue, send update to UI
+        if (pLine.includes('progress=continue') && totalDuration > 0) {
+          const percentage = Math.min(100, Math.round((currentTime / totalDuration) * 100))
+          const currentTimeStr = formatTime(currentTime)
+          const totalTimeStr = formatTime(totalDuration)
+
+          // Create progress bar visualization
+          const barWidth = 20
+          const filled = Math.round((percentage / 100) * barWidth)
+          const empty = barWidth - filled
+          const bar = '█'.repeat(filled) + '░'.repeat(empty)
+
+          // Format: "Fortschritt: [████████░░░░] 80% | 00:42/00:59 | 215 fps"
+          const progressMsg = `Fortschritt: [${bar}] ${percentage}% | ${currentTimeStr}/${totalTimeStr} | ${currentFps} fps`
+
+          mainWindow?.webContents.send('transcode-progress', progressMsg)
+        }
       }
     })
 
-    vidfix.stdout.on('data', (data) => {
-      const line = data.toString()
-      console.log('vidfix stdout:', line)
-      mainWindow?.webContents.send('transcode-progress', line)
-    })
-
-    vidfix.stderr.on('data', (data) => {
-      const line = data.toString()
-      console.error('vidfix stderr:', line)
-      mainWindow?.webContents.send('transcode-progress', line)
-    })
-
-    vidfix.on('error', (err) => {
-      console.error('Failed to start vidfix:', err)
+    ffmpeg.on('error', (err) => {
+      console.error('Failed to start ffmpeg:', err)
+      currentTranscodeProcess = null
       reject(err)
     })
 
-    vidfix.on('close', (code) => {
-      console.log('vidfix exited with code:', code)
+    ffmpeg.on('close', (code) => {
       currentTranscodeProcess = null
-      resolve({ success: code === 0 })
+
+      if (code === 0) {
+        // Transcode successful
+        // Send 100% completion
+        const totalTimeStr = formatTime(totalDuration)
+        const bar = '█'.repeat(20)
+        const progressMsg = `Fortschritt: [${bar}] 100% | ${totalTimeStr}/${totalTimeStr} | ${currentFps} fps`
+        mainWindow?.webContents.send('transcode-progress', progressMsg)
+
+        // Delete original file if requested
+        if (options.deleteOriginal && options.filenamePattern !== 'original') {
+          try {
+            unlinkSync(inputFile)
+          } catch (err) {
+            console.error('Failed to delete original file:', err)
+            // Don't fail the whole operation if deletion fails
+          }
+        }
+
+        resolve({ success: true })
+      } else {
+        resolve({ success: false })
+      }
     })
 
-    currentTranscodeProcess = vidfix
+    currentTranscodeProcess = ffmpeg
   })
 })
 
