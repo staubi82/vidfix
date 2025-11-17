@@ -5,7 +5,10 @@
       "Bash(npm:*)",
       "Bash(chmod:*)",
       "Bash(npx tsc:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(gh repo create:*)",
+      "Bash(git push:*)",
+      "Bash(gh repo edit:*)"
     ],
     "deny": [],
     "ask": []

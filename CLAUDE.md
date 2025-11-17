@@ -6,6 +6,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **IMPORTANT: Always respond in German (Deutsch) when communicating with the user.** The user prefers German language for all interactions, explanations, and discussions. Code, comments, and technical documentation can remain in English, but all conversational responses should be in German.
 
+## Version Control & GitHub Integration
+
+**IMPORTANT: This project is version-controlled with Git and backed up on GitHub.**
+
+- **Repository:** `https://github.com/staubi82/vidfix` (Private)
+- **Branch:** `main`
+- **Commit Policy:** Always commit and push changes to GitHub after making modifications
+- **Workflow:** After any code changes or updates:
+  1. Stage changes: `git add -A`
+  2. Create descriptive commit with Claude Code attribution
+  3. Push to GitHub: `git push origin main`
+
+**Auto-backup instruction:** Whenever you make changes to any project files, you MUST create a commit and push to GitHub immediately after the changes are complete. Include a clear, descriptive commit message explaining what was changed and why.
+
 ## Project Overview
 
 This is a dual-component video transcoding project for DJI Action 5 Pro videos:
