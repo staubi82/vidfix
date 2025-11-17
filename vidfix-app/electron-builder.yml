@@ -1,0 +1,16 @@
+appId: com.vidfix.app
+productName: VidFix
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**/*
+  - package.json
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Video
+  executableName: vidfix-app
+  synopsis: Video Transcoding Tool für DJI Action 5 Pro
+  description: Moderne Desktop-App für Video-Transcoding mit DNxHR, ProRes und H.264 Support

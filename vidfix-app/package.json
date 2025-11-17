@@ -13,7 +13,8 @@
     "transcoding",
     "electron"
   ],
-  "author": "",
+  "author": "staubi82 <noreply@github.com>",
+  "homepage": "https://github.com/staubi82/vidfix",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
