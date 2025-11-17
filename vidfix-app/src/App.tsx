@@ -6,8 +6,10 @@ import { TranscodeQueue } from './components/TranscodeQueue'
 import Settings from './components/Settings'
 import ProgressBar from './components/ProgressBar'
 import TargetSettingsDisplay from './components/TargetSettingsDisplay'
+import ProfileSelector from './components/ProfileSelector'
+import { getProfileById } from './constants/profiles'
 
-interface TranscodeSettings {
+export interface TranscodeSettings {
   codec: 'dnxhr_sq' | 'dnxhr_hq' | 'dnxhr_hqx' | 'h264' | 'h265' | 'prores' | 'vp9' | 'av1'
   resolution: '3840x2160' | '2560x1440' | '1920x1080' | '1280x720' | '854x480'
   fps: 'original' | '24' | '25' | '30' | '50' | '60' | '120'
@@ -45,6 +47,7 @@ function App() {
     deleteOriginal: false,
     shutdownAfter: false
   })
+  const [selectedProfile, setSelectedProfile] = useState<string>('custom')
 
   useEffect(() => {
     window.electronAPI.onTranscodeProgress((data) => {
@@ -247,6 +250,20 @@ function App() {
     setIsPaused(false)
   }
 
+  const handleProfileChange = (profileId: string) => {
+    const profile = getProfileById(profileId)
+    if (profile) {
+      setSettings(profile.settings)
+      setSelectedProfile(profileId)
+    }
+  }
+
+  const handleSettingsChange = (newSettings: TranscodeSettings) => {
+    setSettings(newSettings)
+    // Wenn Settings manuell geändert werden, wechsle zu "Eigene Einstellungen"
+    setSelectedProfile('custom')
+  }
+
   const selectedCount = queue.length
   const totalSize = queue.reduce((sum, item) => sum + item.videoFile.size, 0)
   const queuedPaths = new Set(queue.map(item => item.videoFile.path))
@@ -335,10 +352,18 @@ function App() {
             </h2>
           </div>
 
-          <Settings
-            settings={settings}
-            onSettingsChange={setSettings}
-          />
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <ProfileSelector
+              selectedProfileId={selectedProfile}
+              onProfileChange={handleProfileChange}
+            />
+
+            <Settings
+              settings={settings}
+              onSettingsChange={handleSettingsChange}
+              selectedProfile={selectedProfile}
+            />
+          </div>
 
           {/* Control Buttons */}
           <div className="p-4 border-t border-border mt-auto space-y-2">

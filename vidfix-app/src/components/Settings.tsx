@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Film, Maximize, Headphones, ChevronDown, FolderOutput, FileText, Trash2, Power } from 'lucide-react'
+import { Film, Maximize, Headphones, ChevronDown, FolderOutput, FileText, Trash2, Power, Info } from 'lucide-react'
+import { getProfileById } from '../constants/profiles'
 
 interface TranscodeSettings {
   codec: 'dnxhr_sq' | 'dnxhr_hq' | 'dnxhr_hqx' | 'h264' | 'h265' | 'prores' | 'vp9' | 'av1'
@@ -17,10 +18,13 @@ interface TranscodeSettings {
 interface SettingsProps {
   settings: TranscodeSettings
   onSettingsChange: (settings: TranscodeSettings) => void
+  selectedProfile?: string
 }
 
-export default function Settings({ settings, onSettingsChange }: SettingsProps) {
+export default function Settings({ settings, onSettingsChange, selectedProfile }: SettingsProps) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const activeProfile = selectedProfile ? getProfileById(selectedProfile) : null
+  const showProfileBadge = selectedProfile && selectedProfile !== 'custom'
 
   const codecOptions = [
     { value: 'dnxhr_sq', label: 'DNxHR SQ', desc: 'Standard Quality (empfohlen für DaVinci)' },
@@ -84,7 +88,22 @@ export default function Settings({ settings, onSettingsChange }: SettingsProps) 
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="space-y-4">
+      {/* Profile Badge */}
+      {showProfileBadge && activeProfile && (
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex items-start gap-3">
+          <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="font-medium text-blue-400 text-sm">
+              {activeProfile.name} Profil aktiv
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              Änderungen wechseln automatisch zu "Eigene Einstellungen"
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Codec Selection */}
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-sm font-medium">
