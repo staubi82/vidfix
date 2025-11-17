@@ -8,7 +8,9 @@
       "Bash(git init:*)",
       "Bash(gh repo create:*)",
       "Bash(git push:*)",
-      "Bash(gh repo edit:*)"
+      "Bash(gh repo edit:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

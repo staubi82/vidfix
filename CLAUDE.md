@@ -13,12 +13,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Repository:** `https://github.com/staubi82/vidfix` (Private)
 - **Branch:** `main`
 - **Commit Policy:** Always commit and push changes to GitHub after making modifications
+- **Commit Language:** All commit messages must be written in German (Deutsch)
 - **Workflow:** After any code changes or updates:
   1. Stage changes: `git add -A`
-  2. Create descriptive commit with Claude Code attribution
+  2. Create descriptive commit in German with Claude Code attribution
   3. Push to GitHub: `git push origin main`
 
-**Auto-backup instruction:** Whenever you make changes to any project files, you MUST create a commit and push to GitHub immediately after the changes are complete. Include a clear, descriptive commit message explaining what was changed and why.
+**Auto-backup instruction:** Whenever you make changes to any project files, you MUST create a commit and push to GitHub immediately after the changes are complete. Include a clear, descriptive commit message in German explaining what was changed and why.
 
 ## Project Overview
 
