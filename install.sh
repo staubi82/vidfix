@@ -210,8 +210,8 @@ EOF
     print_info "Tipp: Super-Taste drücken und 'VidFix' eingeben"
     echo ""
     print_info "Falls nicht sofort sichtbar, GNOME Shell neu starten:"
-    echo "  - X11: ${CYAN}killall -3 gnome-shell${NC}"
-    echo "  - Wayland: ${CYAN}Alt+F2${NC}, dann ${CYAN}'r'${NC} eingeben"
+    echo -e "  - X11: ${CYAN}killall -3 gnome-shell${NC}"
+    echo -e "  - Wayland: ${CYAN}Alt+F2${NC}, dann ${CYAN}'r'${NC} eingeben"
     echo ""
 }
 
@@ -317,10 +317,10 @@ uninstall_app() {
 show_menu() {
     show_banner
 
-    echo "  ${BOLD}1)${NC} Installieren     - Erste Installation"
-    echo "  ${BOLD}2)${NC} Update           - Auf neueste Version aktualisieren"
-    echo "  ${BOLD}3)${NC} Deinstallieren   - Vollständig entfernen"
-    echo "  ${BOLD}4)${NC} Abbrechen"
+    echo -e "  ${BOLD}1)${NC} Installieren     - Erste Installation"
+    echo -e "  ${BOLD}2)${NC} Update           - Auf neueste Version aktualisieren"
+    echo -e "  ${BOLD}3)${NC} Deinstallieren   - Vollständig entfernen"
+    echo -e "  ${BOLD}4)${NC} Abbrechen"
     echo ""
     read -p "Auswahl [1-4]: " choice
 
@@ -351,7 +351,7 @@ else
         --help|-h)
             show_banner
             echo "Verwendung:"
-            echo "  ${CYAN}curl -sSL https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/main/install.sh | bash${NC}"
+            echo -e "  ${CYAN}curl -sSL https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/main/install.sh | bash${NC}"
             echo ""
             echo "Oder lokal:"
             echo "  ./install.sh              Interaktives Menü"
