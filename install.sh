@@ -283,7 +283,7 @@ uninstall_app() {
     fi
 
     # Bestätigung
-    read -p "Wirklich deinstallieren? [j/N]: " confirm
+    read -p "Wirklich deinstallieren? [j/N]: " confirm < /dev/tty
     if [ "$confirm" != "j" ] && [ "$confirm" != "J" ]; then
         print_info "Abgebrochen."
         exit 0
@@ -322,7 +322,7 @@ show_menu() {
     echo -e "  ${BOLD}3)${NC} Deinstallieren   - Vollständig entfernen"
     echo -e "  ${BOLD}4)${NC} Abbrechen"
     echo ""
-    read -p "Auswahl [1-4]: " choice
+    read -p "Auswahl [1-4]: " choice < /dev/tty
 
     case $choice in
         1) install_app ;;
