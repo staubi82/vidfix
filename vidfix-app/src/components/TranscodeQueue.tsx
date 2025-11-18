@@ -194,10 +194,6 @@ export function TranscodeQueue({
                   <X size={14} className="text-red-400 hover:text-red-300" />
                 </button>
               )}
-
-              {item.status === 'processing' && (
-                <span className="text-xs text-slate-500 font-mono w-8">Läuft...</span>
-              )}
             </div>
 
             {/* Video Name */}
