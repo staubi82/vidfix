@@ -275,7 +275,34 @@ Nach `npm run build`:
 
 ## 🖥️ AppImage ins GNOME-Startmenü integrieren
 
-Die AppImage-Datei ist portabel und kann von überall ausgeführt werden. Um sie ins Startmenü, Dock und Dash (Activities) zu integrieren, folge diesen Schritten:
+### 🚀 Automatische Installation (empfohlen)
+
+Das mitgelieferte `install.sh` Script übernimmt die komplette Installation automatisch:
+
+```bash
+cd vidfix-app
+
+# Interaktives Menü
+./install.sh
+
+# Oder direkt mit Parameter
+./install.sh install    # Installation
+./install.sh update     # Update (nur AppImage)
+./install.sh uninstall  # Deinstallation
+```
+
+**Das Script erledigt automatisch:**
+- ✅ AppImage nach `~/.local/bin` kopieren
+- ✅ Icon installieren
+- ✅ `.desktop`-Datei erstellen
+- ✅ Desktop-Datenbank aktualisieren
+- ✅ Icon-Cache neu aufbauen
+
+---
+
+### 📝 Manuelle Installation (optional)
+
+Die AppImage-Datei ist portabel und kann von überall ausgeführt werden. Um sie manuell ins Startmenü, Dock und Dash (Activities) zu integrieren, folge diesen Schritten:
 
 ### Schritt 1: AppImage verschieben (optional, aber empfohlen)
 
