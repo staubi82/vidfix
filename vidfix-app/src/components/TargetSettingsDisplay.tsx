@@ -1,4 +1,4 @@
-import { Film, Headphones, FileText, FolderOpen } from 'lucide-react'
+import { Film, Headphones, FileText, FolderOpen, ArrowRight } from 'lucide-react'
 
 interface TranscodeSettings {
   codec: 'dnxhr_sq' | 'dnxhr_hq' | 'dnxhr_hqx' | 'h264' | 'h265' | 'prores' | 'vp9' | 'av1'
@@ -158,7 +158,13 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
         </div>
         <div className="flex flex-col justify-center flex-1 min-w-0">
           <p className="text-xs text-muted-foreground">Zielordner</p>
-          <p className="text-sm font-medium" title={outputDir}>{shortenPath(outputDir)}</p>
+          <div className="flex items-center gap-1 text-sm font-medium">
+            <span className="truncate" title={outputDir}>{shortenPath(outputDir)}</span>
+            <ArrowRight className="w-3 h-3 flex-shrink-0 text-muted-foreground" />
+            <span className="truncate" title={settings.outputToNewDir ? `${outputDir}/transcoded` : outputDir}>
+              {settings.outputToNewDir ? shortenPath(`${outputDir}/transcoded`) : shortenPath(outputDir)}
+            </span>
+          </div>
         </div>
       </div>
     </div>

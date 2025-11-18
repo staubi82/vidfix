@@ -10,7 +10,14 @@
       "Bash(git push:*)",
       "Bash(gh repo edit:*)",
       "Bash(git commit:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(gh release create:*)",
+      "Bash(vidfix-app/dist/VidFix-1.0.0.AppImage )",
+      "Bash(gh release upload:*)",
+      "Bash(timeout 3 cat:*)",
+      "Bash(bash)",
+      "Bash(cat:*)",
+      "Bash(gtk-update-icon-cache:*)"
     ],
     "deny": [],
     "ask": []
