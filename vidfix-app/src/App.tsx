@@ -50,8 +50,24 @@ function App() {
   const [selectedProfile, setSelectedProfile] = useState<string>('custom')
 
   useEffect(() => {
-    window.electronAPI.onTranscodeProgress((data) => {
-      setProgress(data)
+    window.electronAPI.onTranscodeProgress((data: TranscodeProgressData) => {
+      // Update the queue item with progress data
+      setQueue(prev => prev.map(item =>
+        item.videoFile.path === data.filePath
+          ? {
+              ...item,
+              progress: {
+                percentage: data.percentage,
+                currentTime: data.currentTime,
+                totalTime: data.totalTime,
+                fps: data.fps
+              }
+            }
+          : item
+      ))
+
+      // Also update the global progress string for ProgressBar (optional)
+      setProgress(`${data.percentage}% | ${data.currentTime}/${data.totalTime} | ${data.fps} fps`)
     })
 
     // Load home directory from main process

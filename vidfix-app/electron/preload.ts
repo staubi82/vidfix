@@ -12,7 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   cancelTranscode: () => ipcRenderer.invoke('cancel-transcode'),
   getSystemStats: () => ipcRenderer.invoke('get-system-stats'),
   shutdownSystem: () => ipcRenderer.invoke('shutdown-system'),
-  onTranscodeProgress: (callback: (data: string) => void) => {
+  onTranscodeProgress: (callback: (data: any) => void) => {
     ipcRenderer.on('transcode-progress', (_, data) => callback(data))
   }
 })

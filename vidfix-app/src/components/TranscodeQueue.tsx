@@ -157,7 +157,7 @@ export function TranscodeQueue({
               onDragEnter={(e) => handleDragEnter(e, index)}
               onDrop={(e) => handleDrop(e, index)}
               onDragEnd={handleDragEnd}
-              className={`backdrop-blur-sm rounded-lg border transition-all duration-150 flex items-center gap-3 ${
+              className={`backdrop-blur-sm rounded-lg border transition-all duration-150 ${
                 draggedId === item.id
                   ? 'p-3 opacity-40 bg-slate-600/20 border-slate-300/40 shadow-xl scale-95'
                   : dragOverIndex === index
@@ -171,6 +171,7 @@ export function TranscodeQueue({
                           : 'p-3 bg-slate-500/5 border-slate-400/20 hover:border-slate-400/30'
               } ${item.status !== 'processing' ? 'cursor-move' : 'cursor-not-allowed'}`}
             >
+              <div className="flex items-center gap-3 w-full">
             {/* Grip Handle + Delete Button */}
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Grip Handle */}
@@ -250,6 +251,37 @@ export function TranscodeQueue({
                 {item.status === 'completed' ? 'Fertig' : item.status === 'processing' ? 'Läuft' : item.status === 'error' ? 'Fehler' : 'Wartet'}
               </span>
             </div>
+              </div>
+
+              {/* Progress Bar - nur bei processing mit progress data */}
+              {item.status === 'processing' && item.progress && (
+                <div className="mt-2 pt-2 border-t border-blue-500/20">
+                  <div className="flex items-center gap-3">
+                    {/* Progress Bar */}
+                    <div className="flex-1">
+                      <div className="h-1.5 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur-sm">
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-300 ease-out"
+                          style={{ width: `${item.progress.percentage}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex items-center gap-3 text-xs font-mono">
+                      <span className="text-blue-300 font-semibold min-w-[3rem] text-right">
+                        {item.progress.percentage}%
+                      </span>
+                      <span className="text-slate-400">
+                        {item.progress.currentTime}/{item.progress.totalTime}
+                      </span>
+                      <span className="text-slate-500">
+                        {item.progress.fps} fps
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

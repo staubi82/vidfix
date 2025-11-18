@@ -87,33 +87,9 @@ export default function ProgressBar({ progress, isTranscoding }: ProgressBarProp
   }, [])
 
   return (
-    <div className="p-4 space-y-3">
-      {/* Progress Bar - nur anzeigen wenn transkodiert wird */}
-      {isTranscoding && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">Fortschritt</span>
-            <span className="text-muted-foreground">{time.current} / {time.total}</span>
-          </div>
-
-          <div className="relative h-3 bg-secondary rounded-full overflow-hidden">
-            <div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-blue-500 transition-all duration-300 ease-out rounded-full"
-              style={{ width: `${percentage}%` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{percentage}% abgeschlossen</span>
-            {fps > 0 && <span>{fps} fps</span>}
-          </div>
-        </div>
-      )}
-
+    <div className="p-4">
       {/* System Stats - immer anzeigen */}
-      <div className={`flex items-center justify-between gap-4 h-12 text-xs ${isTranscoding ? 'pt-2 border-t border-border' : ''}`}>
+      <div className="flex items-center justify-between gap-4 h-12 text-xs">
         {/* CPU Last - Temp */}
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <div className={`p-1.5 rounded flex-shrink-0 ${

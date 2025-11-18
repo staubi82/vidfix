@@ -605,16 +605,14 @@ ipcMain.handle('start-transcode', async (_, options: any) => {
           const currentTimeStr = formatTime(currentTime)
           const totalTimeStr = formatTime(totalDuration)
 
-          // Create progress bar visualization
-          const barWidth = 20
-          const filled = Math.round((percentage / 100) * barWidth)
-          const empty = barWidth - filled
-          const bar = '█'.repeat(filled) + '░'.repeat(empty)
-
-          // Format: "Fortschritt: [████████░░░░] 80% | 00:42/00:59 | 215 fps"
-          const progressMsg = `Fortschritt: [${bar}] ${percentage}% | ${currentTimeStr}/${totalTimeStr} | ${currentFps} fps`
-
-          mainWindow?.webContents.send('transcode-progress', progressMsg)
+          // Send progress data as object with file identification
+          mainWindow?.webContents.send('transcode-progress', {
+            filePath: inputFile,
+            percentage,
+            currentTime: currentTimeStr,
+            totalTime: totalTimeStr,
+            fps: currentFps
+          })
         }
       }
     })
@@ -632,9 +630,13 @@ ipcMain.handle('start-transcode', async (_, options: any) => {
         // Transcode successful
         // Send 100% completion
         const totalTimeStr = formatTime(totalDuration)
-        const bar = '█'.repeat(20)
-        const progressMsg = `Fortschritt: [${bar}] 100% | ${totalTimeStr}/${totalTimeStr} | ${currentFps} fps`
-        mainWindow?.webContents.send('transcode-progress', progressMsg)
+        mainWindow?.webContents.send('transcode-progress', {
+          filePath: inputFile,
+          percentage: 100,
+          currentTime: totalTimeStr,
+          totalTime: totalTimeStr,
+          fps: currentFps
+        })
 
         // Delete original file if requested
         if (options.deleteOriginal && options.filenamePattern !== 'original') {

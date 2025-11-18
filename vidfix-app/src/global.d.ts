@@ -14,7 +14,7 @@ declare global {
       cancelTranscode: () => Promise<{ success: boolean }>
       getSystemStats: () => Promise<{ cpu: number; gpu: number; gpuTemp: number; temp: number; ram: number; ramTotal: number; ssdUsed: number; ssdTotal: number }>
       shutdownSystem: () => Promise<{ success: boolean }>
-      onTranscodeProgress: (callback: (data: string) => void) => void
+      onTranscodeProgress: (callback: (data: TranscodeProgressData) => void) => void
     }
   }
 
@@ -52,11 +52,27 @@ declare global {
     duration?: string
   }
 
+  interface VideoProgress {
+    percentage: number
+    currentTime: string
+    totalTime: string
+    fps: number
+  }
+
+  interface TranscodeProgressData {
+    filePath: string
+    percentage: number
+    currentTime: string
+    totalTime: string
+    fps: number
+  }
+
   interface QueueItem {
     id: string
     videoFile: VideoFile
     metadata?: VideoMetadata
     status: 'waiting' | 'processing' | 'completed' | 'error'
     error?: string
+    progress?: VideoProgress
   }
 }
