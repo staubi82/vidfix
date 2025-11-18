@@ -193,7 +193,7 @@ install_app() {
 Name=VidFix Pro
 Comment=Moderne ffmpeg GUI für professionelle Video-Transcodierung
 Exec=$INSTALL_DIR/$APP_NAME
-Icon=vidfix-app
+Icon=$ICON_DIR/vidfix-app.png
 Terminal=false
 Type=Application
 Categories=AudioVideo;Video;
