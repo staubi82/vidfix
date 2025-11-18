@@ -5,7 +5,8 @@ import { readdirSync, statSync, readFileSync, lstatSync, unlinkSync, mkdirSync, 
 import * as os from 'os'
 
 let mainWindow: BrowserWindow | null = null
-let currentTranscodeProcess: ChildProcess | null = null
+// Map für parallele Transcode-Prozesse: filePath → ChildProcess
+const runningTranscodeProcesses = new Map<string, ChildProcess>()
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -570,6 +571,9 @@ ipcMain.handle('start-transcode', async (_, options: any) => {
     // Start ffmpeg
     const ffmpeg = spawn('ffmpeg', ffmpegArgs)
 
+    // Speichere Prozess in Map für Pause/Resume/Cancel
+    runningTranscodeProcesses.set(inputFile, ffmpeg)
+
     let progressBuffer = ''
     let currentFps = 0
     let currentTime = 0
@@ -619,12 +623,12 @@ ipcMain.handle('start-transcode', async (_, options: any) => {
 
     ffmpeg.on('error', (err) => {
       console.error('Failed to start ffmpeg:', err)
-      currentTranscodeProcess = null
+      runningTranscodeProcesses.delete(inputFile)
       reject(err)
     })
 
     ffmpeg.on('close', (code) => {
-      currentTranscodeProcess = null
+      runningTranscodeProcesses.delete(inputFile)
 
       if (code === 0) {
         // Transcode successful
@@ -653,37 +657,56 @@ ipcMain.handle('start-transcode', async (_, options: any) => {
         resolve({ success: false })
       }
     })
-
-    currentTranscodeProcess = ffmpeg
   })
 })
 
-// Pause transcoding
+// Pause transcoding - pausiert ALLE laufenden Prozesse
 ipcMain.handle('pause-transcode', async () => {
-  if (currentTranscodeProcess && currentTranscodeProcess.pid) {
-    process.kill(currentTranscodeProcess.pid, 'SIGSTOP')
-    return { success: true }
+  let pausedCount = 0
+  for (const [_, proc] of runningTranscodeProcesses) {
+    if (proc.pid) {
+      try {
+        process.kill(proc.pid, 'SIGSTOP')
+        pausedCount++
+      } catch (err) {
+        console.error('Error pausing process:', err)
+      }
+    }
   }
-  return { success: false }
+  return { success: pausedCount > 0 }
 })
 
-// Resume transcoding
+// Resume transcoding - setzt ALLE pausierten Prozesse fort
 ipcMain.handle('resume-transcode', async () => {
-  if (currentTranscodeProcess && currentTranscodeProcess.pid) {
-    process.kill(currentTranscodeProcess.pid, 'SIGCONT')
-    return { success: true }
+  let resumedCount = 0
+  for (const [_, proc] of runningTranscodeProcesses) {
+    if (proc.pid) {
+      try {
+        process.kill(proc.pid, 'SIGCONT')
+        resumedCount++
+      } catch (err) {
+        console.error('Error resuming process:', err)
+      }
+    }
   }
-  return { success: false }
+  return { success: resumedCount > 0 }
 })
 
-// Cancel transcoding
+// Cancel transcoding - bricht ALLE laufenden Prozesse ab
 ipcMain.handle('cancel-transcode', async () => {
-  if (currentTranscodeProcess && currentTranscodeProcess.pid) {
-    process.kill(currentTranscodeProcess.pid, 'SIGTERM')
-    currentTranscodeProcess = null
-    return { success: true }
+  let cancelledCount = 0
+  for (const [_, proc] of runningTranscodeProcesses) {
+    if (proc.pid) {
+      try {
+        process.kill(proc.pid, 'SIGTERM')
+        cancelledCount++
+      } catch (err) {
+        console.error('Error cancelling process:', err)
+      }
+    }
   }
-  return { success: false }
+  runningTranscodeProcesses.clear()
+  return { success: cancelledCount > 0 }
 })
 
 // Shutdown system (als Manjaro-Nutzer, nicht root)
