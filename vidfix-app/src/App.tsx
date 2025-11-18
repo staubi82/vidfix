@@ -452,18 +452,23 @@ function App() {
       </div>
 
       {/* Status Bar */}
-      <div className="h-8 bg-card border-t border-border flex items-center justify-between px-4 text-xs text-muted-foreground">
+      <div className="h-8 bg-card border-t border-border flex items-center justify-between px-4 text-xs text-muted-foreground relative">
         <div className="flex items-center gap-4">
           <span>VidFix Pro by Staubi V1.0.0</span>
+        </div>
+
+        {/* Center: Directory Path */}
+        <div className="flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
           {currentDir && (
-            <span className="flex items-center gap-2">
+            <>
               <Folder className="w-3 h-3" />
               <span>{currentDir}</span>
               <ArrowRight className="w-3 h-3" />
               <span>{settings.outputToNewDir ? `${currentDir}/transcoded` : currentDir}</span>
-            </span>
+            </>
           )}
         </div>
+
         <div className="flex items-center gap-4">
           <span className={`flex items-center gap-1 ${
             settings.useGPU && (settings.codec === 'h264' || settings.codec === 'h265')
