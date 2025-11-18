@@ -454,7 +454,7 @@ function App() {
       {/* Status Bar */}
       <div className="h-8 bg-card border-t border-border flex items-center justify-between px-4 text-xs text-muted-foreground relative">
         <div className="flex items-center gap-4">
-          <span>VidFix Pro by Staubi V1.0.0</span>
+          <span>VidFix Pro by Staubi V1.0.1</span>
         </div>
 
         {/* Center: Directory Path */}
