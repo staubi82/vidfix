@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Folder, Play, Pause, X, Settings as SettingsIcon, Video, Cpu, HardDrive, Zap } from 'lucide-react'
+import { Folder, Play, Pause, X, Settings as SettingsIcon, Video, Cpu, HardDrive, Zap, FolderOutput, ArrowRight } from 'lucide-react'
 import FileBrowser from './components/FileBrowser'
 import DirectoryModal from './components/DirectoryModal'
 import { TranscodeQueue } from './components/TranscodeQueue'
@@ -455,13 +455,25 @@ function App() {
       <div className="h-8 bg-card border-t border-border flex items-center justify-between px-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-4">
           <span>VidFix Pro by Staubi V1.0.0</span>
+        </div>
+
+        {/* Center: Source → Target Directory */}
+        <div className="flex items-center gap-2">
           {currentDir && (
-            <span className="flex items-center gap-1">
-              <Folder className="w-3 h-3" />
-              {currentDir}
-            </span>
+            <>
+              <span className="flex items-center gap-1">
+                <Folder className="w-3 h-3" />
+                {currentDir}
+              </span>
+              <ArrowRight className="w-3 h-3" />
+              <span className="flex items-center gap-1">
+                <FolderOutput className="w-3 h-3" />
+                {settings.outputToNewDir ? `${currentDir}/transcoded` : currentDir}
+              </span>
+            </>
           )}
         </div>
+
         <div className="flex items-center gap-4">
           <span className={`flex items-center gap-1 ${
             settings.useGPU && (settings.codec === 'h264' || settings.codec === 'h265')
