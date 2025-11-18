@@ -341,7 +341,9 @@ function buildFfmpegArgs(
   const args: string[] = [
     '-i', inputPath,
     '-y', // Overwrite output file
-    '-progress', 'pipe:2' // Send progress to stderr
+    '-progress', 'pipe:2', // Send progress to stderr
+    '-threads', '0', // Auto-detect and use all available CPU cores
+    '-max_muxing_queue_size', '1024' // Increase buffer for large 4K videos
   ]
 
   // Video filters
@@ -375,7 +377,7 @@ function buildFfmpegArgs(
       args.push('-c:v', 'dnxhd', '-profile:v', 'dnxhr_hqx', '-pix_fmt', 'yuv422p10le')
       break
     case 'prores':
-      args.push('-c:v', 'prores_ks', '-profile:v', '2', '-pix_fmt', 'yuv422p10le')
+      args.push('-c:v', 'prores_ks', '-profile:v', '2', '-pix_fmt', 'yuv422p10le', '-vendor_id', 'apl0')
       break
     case 'h264':
       args.push('-c:v', 'libx264', '-preset', 'medium', '-crf', '23')

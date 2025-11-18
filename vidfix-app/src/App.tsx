@@ -170,57 +170,70 @@ function App() {
     // Kopiere Queue am Anfang um Index-Probleme zu vermeiden
     const queueToProcess = [...queue]
 
-    // Verarbeite Videos sequentiell
-    for (let i = 0; i < queueToProcess.length; i++) {
+    // Auto-detect parallele Jobs basierend auf verfügbaren CPU-Kernen
+    // Nutze 50-75% der Kerne für parallele Verarbeitung
+    const cpuCores = navigator.hardwareConcurrency || 4
+    const parallelJobs = Math.max(1, Math.min(Math.ceil(cpuCores * 0.6), 8))
+
+    // Verarbeite Videos in Batches (parallel)
+    for (let i = 0; i < queueToProcess.length; i += parallelJobs) {
       if (cancelRequestedRef.current) break
 
-      const item = queueToProcess[i]
-      const itemId = item.id
+      // Erstelle Batch mit bis zu parallelJobs Videos
+      const batch = queueToProcess.slice(i, i + parallelJobs)
 
-      // Update Status zu 'processing'
-      setQueue(prev =>
-        prev.map((q) =>
-          q.id === itemId ? { ...q, status: 'processing' } : q
-        )
-      )
+      // Starte alle Videos im Batch parallel
+      const batchPromises = batch.map(async (item) => {
+        const itemId = item.id
 
-      try {
-        const result = await window.electronAPI.startTranscode({
-          files: [item.videoFile.path],
-          codec: settings.codec,
-          resolution: settings.resolution,
-          fps: settings.fps,
-          audio: settings.audio,
-          audioBitrate: settings.audioBitrate,
-          outputDir: currentDir,
-          outputToNewDir: settings.outputToNewDir,
-          filenamePattern: settings.filenamePattern,
-          deleteOriginal: settings.deleteOriginal
-        })
-
-        // Update Status basierend auf Erfolg
-        if (result.success) {
-          setQueue(prev =>
-            prev.map((q) =>
-              q.id === itemId ? { ...q, status: 'completed' } : q
-            )
+        // Update Status zu 'processing'
+        setQueue(prev =>
+          prev.map((q) =>
+            q.id === itemId ? { ...q, status: 'processing' } : q
           )
-        } else {
+        )
+
+        try {
+          const result = await window.electronAPI.startTranscode({
+            files: [item.videoFile.path],
+            codec: settings.codec,
+            resolution: settings.resolution,
+            fps: settings.fps,
+            audio: settings.audio,
+            audioBitrate: settings.audioBitrate,
+            outputDir: currentDir,
+            outputToNewDir: settings.outputToNewDir,
+            filenamePattern: settings.filenamePattern,
+            deleteOriginal: settings.deleteOriginal
+          })
+
+          // Update Status basierend auf Erfolg
+          if (result.success) {
+            setQueue(prev =>
+              prev.map((q) =>
+                q.id === itemId ? { ...q, status: 'completed' } : q
+              )
+            )
+          } else {
+            setQueue(prev =>
+              prev.map((q) =>
+                q.id === itemId ? { ...q, status: 'error', error: 'Transcode fehlgeschlagen' } : q
+              )
+            )
+          }
+        } catch (error) {
           setQueue(prev =>
             prev.map((q) =>
-              q.id === itemId ? { ...q, status: 'error', error: 'Transcode fehlgeschlagen' } : q
+              q.id === itemId ? { ...q, status: 'error', error: String(error) } : q
             )
           )
         }
-      } catch (error) {
-        setQueue(prev =>
-          prev.map((q) =>
-            q.id === itemId ? { ...q, status: 'error', error: String(error) } : q
-          )
-        )
-      }
+      })
 
-      setCurrentProcessingIndex(i + 1)
+      // Warte bis alle Videos im Batch fertig sind
+      await Promise.all(batchPromises)
+
+      setCurrentProcessingIndex(i + batch.length)
     }
 
     setIsTranscoding(false)
