@@ -1,4 +1,4 @@
-import { Film, Headphones, FileText, FolderOpen } from 'lucide-react'
+import { Film, Headphones, FileText, FolderOpen, Power } from 'lucide-react'
 
 interface TranscodeSettings {
   codec: 'dnxhr_sq' | 'dnxhr_hq' | 'dnxhr_hqx' | 'h264' | 'h265' | 'prores' | 'vp9' | 'av1'
@@ -95,7 +95,7 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
   }
 
   return (
-    <div className="grid grid-cols-6 gap-2">
+    <div className="grid grid-cols-7 gap-2">
       {/* Format */}
       <div className="flex items-center gap-1.5 h-12">
         <div className="p-1.5 rounded-lg bg-blue-500/20 flex-shrink-0">
@@ -160,6 +160,19 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
           <p className="text-xs text-muted-foreground">Original-Dateien</p>
           <p className={`text-sm font-medium ${settings.deleteOriginal ? 'text-red-400' : ''}`}>
             {settings.deleteOriginal ? 'Werden gelöscht' : 'Werden behalten'}
+          </p>
+        </div>
+      </div>
+
+      {/* Shutdown After */}
+      <div className="flex items-center gap-1.5 h-12">
+        <div className={`p-1.5 rounded-lg flex-shrink-0 ${settings.shutdownAfter ? 'bg-orange-500/20' : 'bg-gray-500/20'}`}>
+          <Power className={`w-4 h-4 ${settings.shutdownAfter ? 'text-orange-400' : 'text-gray-400'}`} />
+        </div>
+        <div className="flex flex-col justify-center flex-1 min-w-0">
+          <p className="text-xs text-muted-foreground">Nach Abschluss</p>
+          <p className={`text-sm font-medium ${settings.shutdownAfter ? 'text-orange-400' : ''}`}>
+            {settings.shutdownAfter ? 'PC herunterfahren' : 'Nichts unternehmen'}
           </p>
         </div>
       </div>
