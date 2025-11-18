@@ -273,6 +273,94 @@ Nach `npm run build`:
 - **AppImage**: `vidfix-app/dist/vidfix-app-1.0.0.AppImage` (portable)
 - **DEB**: `vidfix-app/dist/vidfix-app_1.0.0_amd64.deb` (Debian/Ubuntu)
 
+## 🖥️ AppImage ins GNOME-Startmenü integrieren
+
+Die AppImage-Datei ist portabel und kann von überall ausgeführt werden. Um sie ins Startmenü, Dock und Dash (Activities) zu integrieren, folge diesen Schritten:
+
+### Schritt 1: AppImage verschieben (optional, aber empfohlen)
+
+```bash
+# AppImage nach ~/.local/bin verschieben (benutzerbasiert)
+mkdir -p ~/.local/bin
+mv vidfix-app/dist/vidfix-app-1.0.0.AppImage ~/.local/bin/vidfix-app
+chmod +x ~/.local/bin/vidfix-app
+
+# Alternative: Systemweit nach /opt (erfordert sudo)
+# sudo mkdir -p /opt/vidfix-app
+# sudo mv vidfix-app/dist/vidfix-app-1.0.0.AppImage /opt/vidfix-app/vidfix-app
+# sudo chmod +x /opt/vidfix-app/vidfix-app
+```
+
+### Schritt 2: Icon extrahieren
+
+```bash
+# Icon aus dem App-Verzeichnis kopieren
+mkdir -p ~/.local/share/icons/hicolor/512x512/apps
+cp vidfix-app/resources/icon.png ~/.local/share/icons/hicolor/512x512/apps/vidfix-app.png
+```
+
+### Schritt 3: Desktop-Datei erstellen
+
+```bash
+# Desktop-Datei im lokalen Anwendungsverzeichnis erstellen
+mkdir -p ~/.local/share/applications
+nano ~/.local/share/applications/vidfix-app.desktop
+```
+
+Füge folgenden Inhalt ein (passe den Pfad an, wenn du `/opt` verwendet hast):
+
+```desktop
+[Desktop Entry]
+Name=VidFix Pro
+Comment=Moderne ffmpeg GUI für professionelle Video-Transcodierung
+Exec=/home/DEIN_BENUTZERNAME/.local/bin/vidfix-app
+Icon=vidfix-app
+Terminal=false
+Type=Application
+Categories=AudioVideo;Video;
+Keywords=video;transcoding;ffmpeg;dnxhr;prores;davinci;
+StartupNotify=true
+StartupWMClass=vidfix-app
+```
+
+**Wichtig**: Ersetze `DEIN_BENUTZERNAME` mit deinem tatsächlichen Benutzernamen oder verwende die vollständige Pfad-Angabe!
+
+### Schritt 4: Desktop-Datenbank aktualisieren
+
+```bash
+# Desktop-Datenbank neu einlesen
+update-desktop-database ~/.local/share/applications
+
+# Icon-Cache aktualisieren
+gtk-update-icon-cache ~/.local/share/icons/hicolor/ -f
+
+# Optional: Systemd-Generator neu laden (falls nötig)
+systemctl --user daemon-reload
+```
+
+### Schritt 5: GNOME Shell neu starten (falls nötig)
+
+Falls die App nicht sofort im Dash erscheint:
+
+```bash
+# GNOME Shell neu starten (X11)
+killall -3 gnome-shell
+
+# Oder für Wayland: Alt+F2 drücken, dann "r" eingeben und Enter
+```
+
+### Ergebnis
+
+Die App sollte jetzt:
+- ✅ Im Activities-Dash erscheinen (Super-Taste drücken und "VidFix" tippen)
+- ✅ Ins Dock gepinnt werden können (Rechtsklick → "Zu Favoriten hinzufügen")
+- ✅ Mit dem richtigen Icon angezeigt werden
+- ✅ In der Anwendungsübersicht unter "Audio & Video" zu finden sein
+
+### Tipp: Automatische Updates
+
+Wenn du das AppImage aktualisierst, musst du nur die neue Version nach `~/.local/bin/vidfix-app` kopieren - die Desktop-Datei bleibt gültig.
+
 ## 🤝 Beiträge
 
 Dieses Projekt ist privat. Bei Fragen oder Verbesserungsvorschlägen bitte direkt kontaktieren.
