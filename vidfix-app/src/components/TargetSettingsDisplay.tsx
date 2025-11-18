@@ -72,10 +72,10 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
   }
 
   return (
-    <div className="grid grid-cols-6 gap-3">
+    <div className="grid grid-cols-6 gap-2">
       {/* Format */}
-      <div className="flex items-center gap-2 h-12">
-        <div className="p-2 rounded-lg bg-blue-500/20 flex-shrink-0">
+      <div className="flex items-center gap-1.5 h-12">
+        <div className="p-1.5 rounded-lg bg-blue-500/20 flex-shrink-0">
           <Film className="w-4 h-4 text-blue-400" />
         </div>
         <div className="flex flex-col justify-center flex-1">
@@ -85,8 +85,8 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
       </div>
 
       {/* Resolution */}
-      <div className="flex items-center gap-2 h-12">
-        <div className="p-2 rounded-lg bg-purple-500/20 flex-shrink-0">
+      <div className="flex items-center gap-1.5 h-12">
+        <div className="p-1.5 rounded-lg bg-purple-500/20 flex-shrink-0">
           <Film className="w-4 h-4 text-purple-400" />
         </div>
         <div className="flex flex-col justify-center flex-1">
@@ -96,8 +96,8 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
       </div>
 
       {/* FPS */}
-      <div className="flex items-center gap-2 h-12">
-        <div className="p-2 rounded-lg bg-indigo-500/20 flex-shrink-0">
+      <div className="flex items-center gap-1.5 h-12">
+        <div className="p-1.5 rounded-lg bg-indigo-500/20 flex-shrink-0">
           <Film className="w-4 h-4 text-indigo-400" />
         </div>
         <div className="flex flex-col justify-center flex-1">
@@ -107,8 +107,8 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
       </div>
 
       {/* Audio */}
-      <div className="flex items-center gap-2 h-12">
-        <div className="p-2 rounded-lg bg-green-500/20 flex-shrink-0">
+      <div className="flex items-center gap-1.5 h-12">
+        <div className="p-1.5 rounded-lg bg-green-500/20 flex-shrink-0">
           <Headphones className="w-4 h-4 text-green-400" />
         </div>
         <div className="flex flex-col justify-center flex-1">
@@ -118,8 +118,8 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
       </div>
 
       {/* Mode */}
-      <div className="flex items-center gap-2 h-12">
-        <div className="p-2 rounded-lg bg-yellow-500/20 flex-shrink-0">
+      <div className="flex items-center gap-1.5 h-12">
+        <div className="p-1.5 rounded-lg bg-yellow-500/20 flex-shrink-0">
           <FileText className="w-4 h-4 text-yellow-400" />
         </div>
         <div className="flex flex-col justify-center flex-1">
@@ -129,8 +129,8 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
       </div>
 
       {/* Output Directory */}
-      <div className="flex items-center gap-2 h-12">
-        <div className="p-2 rounded-lg bg-orange-500/20 flex-shrink-0">
+      <div className="flex items-center gap-1.5 h-12">
+        <div className="p-1.5 rounded-lg bg-orange-500/20 flex-shrink-0">
           <FolderOpen className="w-4 h-4 text-orange-400" />
         </div>
         <div className="flex flex-col justify-center flex-1 min-w-0">
