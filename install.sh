@@ -107,7 +107,7 @@ get_latest_release() {
 download_icon() {
     print_info "Lade Icon herunter..."
 
-    ICON_URL="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/main/vidfix-app/resources/icon.png"
+    ICON_URL="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/main/vidfix-app/build/icon.png"
 
     mkdir -p "$ICON_DIR"
 
