@@ -363,7 +363,7 @@ function App() {
         <div className="flex-1 flex flex-col">
           {/* Target Settings - Always visible */}
           <div className="px-6 pt-4 pb-[12px] border-b border-border">
-            <TargetSettingsDisplay settings={settings} outputDir={currentDir} />
+            <TargetSettingsDisplay settings={settings} />
           </div>
 
           <div className="flex-1 overflow-hidden px-6 py-4">

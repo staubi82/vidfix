@@ -15,10 +15,9 @@ interface TranscodeSettings {
 
 interface TargetSettingsDisplayProps {
   settings: TranscodeSettings
-  outputDir: string
 }
 
-export default function TargetSettingsDisplay({ settings, outputDir }: TargetSettingsDisplayProps) {
+export default function TargetSettingsDisplay({ settings }: TargetSettingsDisplayProps) {
   const getCodecLabel = (codec: string) => {
     const labels: Record<string, string> = {
       'dnxhr_sq': 'DNxHR SQ',
@@ -69,29 +68,6 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
       'prefix': 'Prefix'
     }
     return labels[pattern] || pattern
-  }
-
-  const shortenPath = (path: string, maxLength: number = 40): string => {
-    if (!path) return 'Nicht gewählt'
-
-    // Ersetze /home/username/ mit ~/
-    const homeDir = '/home/staubi'
-    let shortened = path.startsWith(homeDir) ? path.replace(homeDir, '~') : path
-
-    // Wenn kurz genug, direkt zurückgeben
-    if (shortened.length <= maxLength) return shortened
-
-    // Pfad in Teile splitten
-    const parts = shortened.split('/')
-
-    // Wenn nur wenige Teile, nicht kürzen
-    if (parts.length <= 3) return shortened
-
-    // Behalte ersten Teil (~) und letzte 2 Teile
-    const start = parts[0]  // ~ oder erster Teil
-    const end = parts.slice(-2).join('/')  // letzte 2 Ordner
-
-    return `${start}/.../${end}`
   }
 
   return (
