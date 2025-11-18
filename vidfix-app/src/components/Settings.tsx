@@ -105,58 +105,6 @@ export default function Settings({ settings, onSettingsChange, selectedProfile }
         </div>
       )}
 
-      {/* Delete Original */}
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium">
-          <Trash2 className="w-4 h-4 text-primary" />
-          Original-Datei nach Transcoding
-        </label>
-        <button
-          onClick={() => onSettingsChange({ ...settings, deleteOriginal: !settings.deleteOriginal })}
-          className={`w-full text-left p-3 rounded-lg border transition-all ${
-            settings.deleteOriginal ? 'border-red-500 bg-red-500/10' : 'border-border hover:border-primary/50 bg-card'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-sm">{settings.deleteOriginal ? 'AN - wird gelöscht' : 'AUS - wird behalten'}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {settings.deleteOriginal ? '⚠️ Original wird gelöscht, wenn Transcoding erfolgreich' : 'Original wird nicht gelöscht'}
-              </p>
-            </div>
-            <div className={`w-10 h-6 rounded-full transition-colors ${settings.deleteOriginal ? 'bg-red-500' : 'bg-secondary'} relative`}>
-              <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-transform ${settings.deleteOriginal ? 'right-1' : 'left-1'}`} />
-            </div>
-          </div>
-        </button>
-      </div>
-
-      {/* Shutdown After */}
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium">
-          <Power className="w-4 h-4 text-primary" />
-          Nach Abschluss
-        </label>
-        <button
-          onClick={() => onSettingsChange({ ...settings, shutdownAfter: !settings.shutdownAfter })}
-          className={`w-full text-left p-3 rounded-lg border transition-all ${
-            settings.shutdownAfter ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-sm">{settings.shutdownAfter ? 'PC herunterfahren' : 'Nichts unternehmen'}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {settings.shutdownAfter ? 'PC wird nach Fertigstellung heruntergefahren' : 'PC läuft weiter'}
-              </p>
-            </div>
-            <div className={`w-10 h-6 rounded-full transition-colors ${settings.shutdownAfter ? 'bg-primary' : 'bg-secondary'} relative`}>
-              <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-transform ${settings.shutdownAfter ? 'right-1' : 'left-1'}`} />
-            </div>
-          </div>
-        </button>
-      </div>
-
       {/* Codec Selection */}
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-sm font-medium">
@@ -378,6 +326,32 @@ export default function Settings({ settings, onSettingsChange, selectedProfile }
         )}
       </div>
 
+      {/* Output Directory */}
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <FolderOutput className="w-4 h-4 text-primary" />
+          Ausgabeverzeichnis
+        </label>
+        <button
+          onClick={() => onSettingsChange({ ...settings, outputToNewDir: !settings.outputToNewDir })}
+          className={`w-full text-left p-3 rounded-lg border transition-all ${
+            settings.outputToNewDir ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-sm">{settings.outputToNewDir ? 'Neues Verzeichnis' : 'Gleiches Verzeichnis'}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {settings.outputToNewDir ? 'Speichert in "transcoded" Unterordner' : 'Speichert im gleichen Ordner'}
+              </p>
+            </div>
+            <div className={`w-10 h-6 rounded-full transition-colors ${settings.outputToNewDir ? 'bg-primary' : 'bg-secondary'} relative`}>
+              <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-transform ${settings.outputToNewDir ? 'right-1' : 'left-1'}`} />
+            </div>
+          </div>
+        </button>
+      </div>
+
       {/* Filename Pattern */}
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-sm font-medium">
@@ -416,6 +390,58 @@ export default function Settings({ settings, onSettingsChange, selectedProfile }
             </div>
           )}
         </div>
+      </div>
+
+      {/* Delete Original */}
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <Trash2 className="w-4 h-4 text-primary" />
+          Original-Datei nach Transcoding
+        </label>
+        <button
+          onClick={() => onSettingsChange({ ...settings, deleteOriginal: !settings.deleteOriginal })}
+          className={`w-full text-left p-3 rounded-lg border transition-all ${
+            settings.deleteOriginal ? 'border-red-500 bg-red-500/10' : 'border-border hover:border-primary/50 bg-card'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-sm">{settings.deleteOriginal ? 'AN - wird gelöscht' : 'AUS - wird behalten'}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {settings.deleteOriginal ? '⚠️ Original wird gelöscht, wenn Transcoding erfolgreich' : 'Original wird nicht gelöscht'}
+              </p>
+            </div>
+            <div className={`w-10 h-6 rounded-full transition-colors ${settings.deleteOriginal ? 'bg-red-500' : 'bg-secondary'} relative`}>
+              <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-transform ${settings.deleteOriginal ? 'right-1' : 'left-1'}`} />
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* Shutdown After */}
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <Power className="w-4 h-4 text-primary" />
+          Nach Abschluss
+        </label>
+        <button
+          onClick={() => onSettingsChange({ ...settings, shutdownAfter: !settings.shutdownAfter })}
+          className={`w-full text-left p-3 rounded-lg border transition-all ${
+            settings.shutdownAfter ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-sm">{settings.shutdownAfter ? 'PC herunterfahren' : 'Nichts unternehmen'}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {settings.shutdownAfter ? 'PC wird nach Fertigstellung heruntergefahren' : 'PC läuft weiter'}
+              </p>
+            </div>
+            <div className={`w-10 h-6 rounded-full transition-colors ${settings.shutdownAfter ? 'bg-primary' : 'bg-secondary'} relative`}>
+              <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-transform ${settings.shutdownAfter ? 'right-1' : 'left-1'}`} />
+            </div>
+          </div>
+        </button>
       </div>
     </div>
   )
