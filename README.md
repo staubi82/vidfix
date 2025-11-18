@@ -105,7 +105,23 @@ VidFix Pro ist eine leistungsstarke Desktop-Anwendung zur Konvertierung von Vide
 
 ## 🛠️ Installation
 
-### Voraussetzungen
+### 🚀 Quick Install (One-Liner)
+
+```bash
+curl -sSL https://raw.githubusercontent.com/staubi82/vidfix/main/install.sh | bash
+```
+
+Dieser Befehl:
+- ✅ Lädt automatisch die neueste AppImage von GitHub Releases
+- ✅ Installiert Icon und Desktop-Integration
+- ✅ Zeigt interaktives Menü für Install/Update/Deinstall
+- ✅ Keine manuelle Konfiguration nötig
+
+**Hinweis:** Lade vorher die AppImage als Release auf GitHub hoch!
+
+---
+
+### 📦 Voraussetzungen
 
 ```bash
 # Arch Linux / Manjaro
@@ -115,7 +131,7 @@ sudo pacman -S ffmpeg nodejs npm
 sudo pacman -S nvtop amdgpu_top
 ```
 
-### Electron App installieren
+### 🔧 Development Setup
 
 ```bash
 cd vidfix-app
@@ -277,7 +293,13 @@ Nach `npm run build`:
 
 ### 🚀 Automatische Installation (empfohlen)
 
-Das mitgelieferte `install.sh` Script übernimmt die komplette Installation automatisch:
+**One-Liner - einfach per curl:**
+
+```bash
+curl -sSL https://raw.githubusercontent.com/staubi82/vidfix/main/install.sh | bash
+```
+
+**Oder lokal aus dem Repo:**
 
 ```bash
 cd vidfix-app
