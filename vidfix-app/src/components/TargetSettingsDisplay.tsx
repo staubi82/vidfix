@@ -71,6 +71,29 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
     return labels[pattern] || pattern
   }
 
+  const shortenPath = (path: string, maxLength: number = 40): string => {
+    if (!path) return 'Nicht gewählt'
+
+    // Ersetze /home/username/ mit ~/
+    const homeDir = '/home/staubi'
+    let shortened = path.startsWith(homeDir) ? path.replace(homeDir, '~') : path
+
+    // Wenn kurz genug, direkt zurückgeben
+    if (shortened.length <= maxLength) return shortened
+
+    // Pfad in Teile splitten
+    const parts = shortened.split('/')
+
+    // Wenn nur wenige Teile, nicht kürzen
+    if (parts.length <= 3) return shortened
+
+    // Behalte ersten Teil (~) und letzte 2 Teile
+    const start = parts[0]  // ~ oder erster Teil
+    const end = parts.slice(-2).join('/')  // letzte 2 Ordner
+
+    return `${start}/.../${end}`
+  }
+
   return (
     <div className="grid grid-cols-6 gap-2">
       {/* Format */}
@@ -135,7 +158,7 @@ export default function TargetSettingsDisplay({ settings, outputDir }: TargetSet
         </div>
         <div className="flex flex-col justify-center flex-1 min-w-0">
           <p className="text-xs text-muted-foreground">Zielordner</p>
-          <p className="text-sm font-medium truncate" title={outputDir}>{outputDir || 'Nicht gewählt'}</p>
+          <p className="text-sm font-medium" title={outputDir}>{shortenPath(outputDir)}</p>
         </div>
       </div>
     </div>
