@@ -1,8 +1,8 @@
 # VidFix Pro
 
-**Professional Video Transcoding Tool for DJI Action 5 Pro**
+**Moderne ffmpeg GUI für professionelle Video-Transcodierung**
 
-VidFix Pro ist eine leistungsstarke Lösung zur Konvertierung von DJI Action 5 Pro Videos in Formate, die mit DaVinci Resolve kompatibel sind. Das Projekt besteht aus zwei Komponenten: einem interaktiven Bash-Script und einer modernen Electron Desktop-Anwendung.
+VidFix Pro ist eine leistungsstarke Desktop-Anwendung zur Konvertierung von Videos in verschiedene professionelle Formate. Speziell optimiert für DaVinci Resolve, Premiere Pro und Final Cut - aber universell einsetzbar für alle Video-Workflows. Das Projekt besteht aus zwei Komponenten: einem interaktiven Bash-Script und einer modernen Electron Desktop-Anwendung mit Echtzeit-Monitoring.
 
 ![VidFix Pro UI](screenshots/vidfix-app-ui.png)
 
@@ -11,10 +11,12 @@ VidFix Pro ist eine leistungsstarke Lösung zur Konvertierung von DJI Action 5 P
 ### Electron Desktop App (vidfix-app)
 
 - **Moderne Benutzeroberfläche**: React 19 + TypeScript mit Glassmorphism-Design
-- **Batch-Processing**: Mehrere Videos gleichzeitig verarbeiten
-- **Echtzeit-Monitoring**: Live CPU/GPU/RAM/Temperatur-Überwachung
-- **Video-Vorschau**: ffprobe-basierte Metadaten-Anzeige
-- **Preset-Manager**: Vordefinierte Einstellungen (DJI Standard, 4K HQ, etc.)
+- **Multi-Format Support**: MP4, MKV, MOV, AVI - alle gängigen Video-Formate
+- **Intelligentes Batch-Processing**: Worker Pool mit 2-3 parallelen Jobs (optimiert für Multi-Core CPUs)
+- **Multi-Progress UI**: Individueller Fortschrittsbalken für jedes Video in der Queue
+- **Echtzeit-Monitoring**: Live CPU/GPU/RAM/Temperatur-Überwachung (AMD/Intel/NVIDIA optimiert)
+- **Video-Vorschau**: ffprobe-basierte Metadaten-Anzeige mit Smart-Truncate
+- **Preset-Manager**: Vordefinierte Profile (DaVinci Standard, 4K HQ, Archivierung, etc.)
 - **Flexible Ausgabe**: Verschiedene Dateinamen-Optionen (Original, Suffix, Prefix)
 
 ### Bash Script (vidfix)
@@ -25,19 +27,81 @@ VidFix Pro ist eine leistungsstarke Lösung zur Konvertierung von DJI Action 5 P
 - **Fortschrittsanzeige**: Echtzeit-Progress mit Systemstatistiken
 - **State Management**: Wiederaufnahme unterbrochener Transcodierungen
 
+## ⚡ Performance-Optimierungen
+
+### Multi-Threading & Parallelisierung
+- **`-threads 0`**: Jedes Video nutzt automatisch **alle verfügbaren CPU-Kerne**
+- **Worker Pool Pattern**: 2-3 Videos werden gleichzeitig verarbeitet (optimal für 8-16 Core CPUs)
+- **Kontinuierliches Nachfüllen**: Sobald ein Video fertig ist, startet das nächste sofort
+- **CPU-Auslastung**: Stabil bei 80-90% statt 100% (weniger Overhead)
+
+### Multi-Progress UI
+- **Individueller Fortschritt**: Jedes Video in der Queue zeigt seinen eigenen Progress-Balken
+- **Echtzeit-Updates**: Prozent, Zeit (00:42/01:03), FPS pro Video
+- **Parallele Anzeige**: Bei 3 Jobs → 3 Progress-Balken gleichzeitig sichtbar
+- **Glassmorphism Design**: Moderne UI mit Gradient-Animationen
+
+### Hardware-Monitoring
+- **AMD GPU**: `amdgpu_top`, sysfs interfaces
+- **Intel/NVIDIA**: `nvtop`, hwmon
+- **CPU/RAM/Temp**: Live-Updates alle 2 Sekunden
+- **System-Stats**: Überwachung während Batch-Processing
+
+### Smart UI Features
+- **Smart-Truncate**: Pfad-Verkürzung (`/home/user/...` → `~/.../videos`)
+- **Pause/Resume**: Wirkt auf **alle** parallelen Prozesse gleichzeitig
+- **Cancel**: Bricht alle laufenden Jobs ab (Map-basiertes Tracking)
+
 ## 📋 Unterstützte Codecs
 
-| Codec | Pixel Format | Verwendung |
-|-------|--------------|------------|
-| **DNxHR SQ** | yuv422p | Standard für DaVinci Resolve (empfohlen) |
-| **DNxHR HQ** | yuv422p | Höhere Qualität, größere Dateien |
-| **ProRes 422** | yuv422p10le | Apple ProRes (macOS-optimiert) |
-| **H.264** | nv12/yuv420p | Kompakt, mit GPU-Beschleunigung |
+### Video-Codecs
 
-### Audio-Optionen
+| Codec | Pixel Format | Verwendung | Performance |
+|-------|--------------|------------|-------------|
+| **DNxHR SQ** | yuv422p | DaVinci Resolve Standard (empfohlen) | Schnell ⚡ |
+| **DNxHR HQ** | yuv422p | Höhere Qualität für professionelle Workflows | Mittel |
+| **DNxHR HQX** | yuv422p10le | 10-bit für Color Grading | Langsam |
+| **ProRes 422** | yuv422p10le | Final Cut Pro, macOS-optimiert | Mittel |
+| **H.264** | nv12/yuv420p | Kompakt, GPU-beschleunigt (VAAPI) | Schnell ⚡ |
+| **H.265 (HEVC)** | yuv420p | Beste Kompression für Archivierung | Langsam |
+| **VP9** | yuv420p | Open-Source Alternative zu H.265 | Sehr langsam |
+| **AV1** | yuv420p | Modernster Codec, beste Kompression | Extrem langsam |
 
-- **PCM 16-bit** (pcm_s16le): DaVinci Resolve-kompatibel (Standard)
-- **Original kopieren**: Behält Original-Audio-Codec bei
+### Audio-Codecs
+
+| Codec | Qualität | Dateigröße | Verwendung |
+|-------|----------|------------|------------|
+| **PCM 16-bit** | Verlustfrei | Groß | DaVinci Resolve (empfohlen) |
+| **FLAC** | Verlustfrei | Mittel | Archivierung mit Kompression |
+| **AAC** | Hoch | Klein | Universell, beste Kompression |
+| **MP3** | Mittel | Klein | Kompatibilität |
+| **Opus** | Hoch | Sehr klein | Modern, effizient |
+| **Vorbis** | Mittel | Klein | Open-Source Alternative |
+| **Original** | - | - | Audio-Stream unverändert kopieren |
+
+## 🎯 Anwendungsfälle
+
+### Video-Editing & Post-Production
+- **DaVinci Resolve**: DNxHR/ProRes für professionelle Color Grading
+- **Adobe Premiere Pro**: ProRes/DNxHR für optimalen Workflow
+- **Final Cut Pro**: ProRes 422 (macOS-optimiert)
+- **Avid Media Composer**: DNxHR native Support
+
+### Action-Cams & Consumer-Hardware
+- **DJI Action 5 Pro / 4 / 3**: Kompatibilitätsfix für Resolve
+- **GoPro Hero 12/11/10**: H.265 → DNxHR Konvertierung
+- **Insta360**: 360°-Videos für Editing vorbereiten
+- **Smartphones**: HEVC → Editing-freundliche Formate
+
+### Archivierung & Backup
+- **Langzeit-Archiv**: H.265/AV1 für maximale Kompression
+- **Backup-Konvertierung**: Große Video-Sammlungen komprimieren
+- **Format-Migration**: Alte Codecs in moderne Formate überführen
+
+### Batch-Processing & Automatisierung
+- **Hunderte Videos**: Worker Pool mit 2-3 parallelen Jobs
+- **Kontinuierlicher Workflow**: Sobald ein Video fertig, startet das nächste
+- **System-Monitoring**: CPU/GPU-Auslastung im Blick behalten
 
 ## 🛠️ Installation
 
@@ -165,8 +229,9 @@ Konfiguration → Dateiauswahl → Codec-Auswahl → Verarbeitung → Validierun
 
 ## 🐛 Bekannte Besonderheiten
 
-- **DJI Frame-based Duration**: DJI Action 5 Pro Videos haben teilweise frame-basierte statt zeitbasierte Duration-Metadaten - wird automatisch erkannt und behandelt
-- **VAAPI Pixel Format**: Hardware-beschleunigte Encodierung verwendet unterschiedliche Pixel-Format-Pipelines (`hwupload`)
+- **Frame-based Duration**: Manche Action-Cams (z.B. DJI, GoPro) nutzen frame-basierte statt zeitbasierte Duration-Metadaten - wird automatisch erkannt und mit Fallback-Berechnung behandelt
+- **VAAPI Pixel Format**: Hardware-beschleunigte Encodierung (AMD/Intel) verwendet unterschiedliche Pixel-Format-Pipelines (`hwupload`) vs. CPU-Encoding
+- **Parallele Prozesse**: Pause/Resume/Cancel wirken auf **alle** laufenden Transcodierungen gleichzeitig (Map-basiertes Prozess-Tracking)
 - **vidfix Duplikat**: Das Bash-Script liegt sowohl im Root als auch in `vidfix-app/` (bei Änderungen synchron halten!)
 
 ## 📝 Dateinamen-Konventionen
