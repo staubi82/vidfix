@@ -43,6 +43,7 @@ declare global {
     outputToNewDir: boolean
     filenamePattern: 'original' | 'suffix' | 'prefix'
     deleteOriginal: boolean
+    useGPU: boolean
   }
 
   interface VideoMetadata {

@@ -2,14 +2,11 @@ import { useState, useEffect } from 'react'
 import { Cpu, Gauge, HardDrive, Zap } from 'lucide-react'
 
 interface ProgressBarProps {
-  progress: string
-  isTranscoding: boolean
+  progress?: string
+  isTranscoding?: boolean
 }
 
-export default function ProgressBar({ progress, isTranscoding }: ProgressBarProps) {
-  const [percentage, setPercentage] = useState(0)
-  const [time, setTime] = useState({ current: '00:00', total: '00:00' })
-  const [fps, setFps] = useState(0)
+export default function ProgressBar({}: ProgressBarProps) {
   const [cpu, setCpu] = useState(0)
   const [gpu, setGpu] = useState(0)
   const [gpuTemp, setGpuTemp] = useState(0)
@@ -17,48 +14,6 @@ export default function ProgressBar({ progress, isTranscoding }: ProgressBarProp
   const [ram, setRam] = useState(0)
   const [ssdUsed, setSsdUsed] = useState(0)
   const [ssdTotal, setSsdTotal] = useState(0)
-
-  // Remove ANSI color codes and control characters
-  const stripAnsi = (str: string) => {
-    return str
-      .replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '') // ANSI escape codes
-      .replace(/\r/g, '') // Carriage return
-      .replace(/\x1B\(B/g, '') // Additional escape sequences
-      .replace(/[\x00-\x1F\x7F-\x9F]/g, '') // Other control chars (except newline)
-  }
-
-  // Parse progress string from transcoding
-  useEffect(() => {
-    // Remove ANSI codes first
-    const cleanProgress = stripAnsi(progress)
-
-    // Debug output
-    if (cleanProgress.length > 0) {
-      console.log('Progress:', cleanProgress)
-    }
-
-    // Parse progress string
-    // Format: "Fortschritt: [████] 80% | 00:42/00:59 | 215 fps"
-
-    if (cleanProgress.includes('Fortschritt:')) {
-      // Parse progress bar - be more specific with regex
-      // Look for percentage AFTER the progress bar characters
-      const percentMatch = cleanProgress.match(/\]\s*(\d+)%/)
-      if (percentMatch) {
-        setPercentage(parseInt(percentMatch[1]))
-      }
-
-      const timeMatch = cleanProgress.match(/(\d{1,2}:\d{2})\/(\d{1,2}:\d{2})/)
-      if (timeMatch) {
-        setTime({ current: timeMatch[1], total: timeMatch[2] })
-      }
-
-      const fpsMatch = cleanProgress.match(/(\d+)\s*fps/i)
-      if (fpsMatch) {
-        setFps(parseInt(fpsMatch[1]))
-      }
-    }
-  }, [progress])
 
   // Regelmäßig System-Stats abrufen (alle 2 Sekunden)
   useEffect(() => {

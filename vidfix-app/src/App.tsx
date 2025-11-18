@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Folder, Play, Pause, X, Settings as SettingsIcon, Video, Cpu, HardDrive } from 'lucide-react'
+import { Folder, Play, Pause, X, Settings as SettingsIcon, Video, Cpu, HardDrive, Zap } from 'lucide-react'
 import FileBrowser from './components/FileBrowser'
 import DirectoryModal from './components/DirectoryModal'
 import { TranscodeQueue } from './components/TranscodeQueue'
@@ -20,6 +20,7 @@ export interface TranscodeSettings {
   filenamePattern: 'original' | 'suffix' | 'prefix'
   deleteOriginal: boolean
   shutdownAfter: boolean
+  useGPU: boolean
 }
 
 function App() {
@@ -45,7 +46,8 @@ function App() {
     outputToNewDir: true,
     filenamePattern: 'suffix',
     deleteOriginal: false,
-    shutdownAfter: false
+    shutdownAfter: false,
+    useGPU: true
   })
   const [selectedProfile, setSelectedProfile] = useState<string>('custom')
 
@@ -224,7 +226,8 @@ function App() {
           outputDir: currentDir,
           outputToNewDir: settings.outputToNewDir,
           filenamePattern: settings.filenamePattern,
-          deleteOriginal: settings.deleteOriginal
+          deleteOriginal: settings.deleteOriginal,
+          useGPU: settings.useGPU
         })
 
         // Update Status basierend auf Erfolg
@@ -460,9 +463,22 @@ function App() {
           )}
         </div>
         <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1">
-            <Cpu className="w-3 h-3" />
-            CPU Mode
+          <span className={`flex items-center gap-1 ${
+            settings.useGPU && (settings.codec === 'h264' || settings.codec === 'h265')
+              ? 'text-green-400'
+              : 'text-muted-foreground'
+          }`}>
+            {settings.useGPU && (settings.codec === 'h264' || settings.codec === 'h265') ? (
+              <>
+                <Zap className="w-3 h-3" />
+                GPU Mode (VAAPI)
+              </>
+            ) : (
+              <>
+                <Cpu className="w-3 h-3" />
+                CPU Mode
+              </>
+            )}
           </span>
           <span className="flex items-center gap-1">
             <HardDrive className="w-3 h-3" />

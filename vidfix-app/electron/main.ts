@@ -338,7 +338,8 @@ function buildFfmpegArgs(
   resolution: string,
   fps: string,
   audio: string,
-  audioBitrate: string
+  audioBitrate: string,
+  useGPU: boolean = false
 ): string[] {
   const args: string[] = [
     '-i', inputPath,
@@ -382,10 +383,55 @@ function buildFfmpegArgs(
       args.push('-c:v', 'prores_ks', '-profile:v', '2', '-pix_fmt', 'yuv422p10le', '-vendor_id', 'apl0')
       break
     case 'h264':
-      args.push('-c:v', 'libx264', '-preset', 'medium', '-crf', '23')
+      if (useGPU) {
+        // GPU-beschleunigtes Encoding mit VAAPI (AMD/Intel)
+        // Filter müssen angepasst werden für Hardware-Upload
+        const vaapiDevice = '/dev/dri/renderD128'
+
+        // Entferne alte Filter und füge VAAPI-Filter hinzu
+        const filterIndex = args.indexOf('-vf')
+        if (filterIndex !== -1) {
+          // Extrahiere existierende Filter (z.B. scale)
+          const existingFilters = args[filterIndex + 1]
+          // Füge format=nv12,hwupload hinzu
+          args[filterIndex + 1] = existingFilters + ',format=nv12,hwupload'
+        } else if (filters.length > 0) {
+          // Wenn Filters array existiert aber noch nicht in args
+          args.push('-vf', filters.join(',') + ',format=nv12,hwupload')
+        } else {
+          // Keine anderen Filter, nur format + hwupload
+          args.push('-vf', 'format=nv12,hwupload')
+        }
+
+        // Füge VAAPI-Parameter am Anfang ein (vor -i)
+        args.unshift('-hwaccel', 'vaapi', '-vaapi_device', vaapiDevice)
+        args.push('-c:v', 'h264_vaapi', '-qp', '23')
+      } else {
+        // CPU-Encoding
+        args.push('-c:v', 'libx264', '-preset', 'medium', '-crf', '23')
+      }
       break
     case 'h265':
-      args.push('-c:v', 'libx265', '-preset', 'medium', '-crf', '28')
+      if (useGPU) {
+        // GPU-beschleunigtes HEVC Encoding mit VAAPI
+        const vaapiDevice = '/dev/dri/renderD128'
+
+        const filterIndex = args.indexOf('-vf')
+        if (filterIndex !== -1) {
+          const existingFilters = args[filterIndex + 1]
+          args[filterIndex + 1] = existingFilters + ',format=nv12,hwupload'
+        } else if (filters.length > 0) {
+          args.push('-vf', filters.join(',') + ',format=nv12,hwupload')
+        } else {
+          args.push('-vf', 'format=nv12,hwupload')
+        }
+
+        args.unshift('-hwaccel', 'vaapi', '-vaapi_device', vaapiDevice)
+        args.push('-c:v', 'hevc_vaapi', '-qp', '28')
+      } else {
+        // CPU-Encoding
+        args.push('-c:v', 'libx265', '-preset', 'medium', '-crf', '28')
+      }
       break
     case 'vp9':
       args.push('-c:v', 'libvpx-vp9', '-crf', '30', '-b:v', '0')
@@ -566,7 +612,8 @@ ipcMain.handle('start-transcode', async (_, options: any) => {
       options.resolution,
       options.fps,
       options.audio,
-      options.audioBitrate
+      options.audioBitrate,
+      options.useGPU || false
     )
 
     // Start ffmpeg

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Film, Maximize, Headphones, ChevronDown, FolderOutput, FileText, Trash2, Power, Info } from 'lucide-react'
+import { Film, Maximize, Headphones, ChevronDown, FolderOutput, FileText, Trash2, Power, Info, Cpu } from 'lucide-react'
 import { getProfileById } from '../constants/profiles'
 
 interface TranscodeSettings {
@@ -13,6 +13,7 @@ interface TranscodeSettings {
   filenamePattern: 'original' | 'suffix' | 'prefix'
   deleteOriginal: boolean
   shutdownAfter: boolean
+  useGPU: boolean
 }
 
 interface SettingsProps {
@@ -143,6 +144,34 @@ export default function Settings({ settings, onSettingsChange, selectedProfile }
           )}
         </div>
       </div>
+
+      {/* GPU/CPU Mode (nur bei H.264/H.265) */}
+      {(settings.codec === 'h264' || settings.codec === 'h265') && (
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <Cpu className="w-4 h-4 text-primary" />
+            Hardware-Beschleunigung
+          </label>
+          <button
+            onClick={() => onSettingsChange({ ...settings, useGPU: !settings.useGPU })}
+            className={`w-full text-left p-3 rounded-lg border transition-all ${
+              settings.useGPU ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-card'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-sm">{settings.useGPU ? 'GPU (VAAPI)' : 'CPU'}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {settings.useGPU ? 'Hardware-beschleunigt (AMD/Intel)' : 'Software-Encoding (langsamer)'}
+                </p>
+              </div>
+              <div className={`w-10 h-6 rounded-full transition-colors ${settings.useGPU ? 'bg-primary' : 'bg-secondary'} relative`}>
+                <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-transform ${settings.useGPU ? 'right-1' : 'left-1'}`} />
+              </div>
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* Resolution Selection */}
       <div className="space-y-2">

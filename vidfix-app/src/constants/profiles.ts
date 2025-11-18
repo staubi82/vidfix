@@ -24,7 +24,8 @@ export const VIDEO_PROFILES: Record<string, VideoProfile> = {
       outputToNewDir: false,
       filenamePattern: 'suffix',
       deleteOriginal: false,
-      shutdownAfter: false
+      shutdownAfter: false,
+      useGPU: false
     }
   },
   youtube: {
@@ -42,7 +43,8 @@ export const VIDEO_PROFILES: Record<string, VideoProfile> = {
       outputToNewDir: false,
       filenamePattern: 'suffix',
       deleteOriginal: false,
-      shutdownAfter: false
+      shutdownAfter: false,
+      useGPU: true
     }
   },
   vimeo: {
@@ -60,7 +62,8 @@ export const VIDEO_PROFILES: Record<string, VideoProfile> = {
       outputToNewDir: false,
       filenamePattern: 'suffix',
       deleteOriginal: false,
-      shutdownAfter: false
+      shutdownAfter: false,
+      useGPU: true
     }
   },
   social: {
@@ -78,7 +81,8 @@ export const VIDEO_PROFILES: Record<string, VideoProfile> = {
       outputToNewDir: false,
       filenamePattern: 'suffix',
       deleteOriginal: false,
-      shutdownAfter: false
+      shutdownAfter: false,
+      useGPU: true
     }
   },
   custom: {
@@ -96,7 +100,8 @@ export const VIDEO_PROFILES: Record<string, VideoProfile> = {
       outputToNewDir: false,
       filenamePattern: 'suffix',
       deleteOriginal: false,
-      shutdownAfter: false
+      shutdownAfter: false,
+      useGPU: true
     }
   }
 }
