@@ -187,9 +187,9 @@ function App() {
     const queueToProcess = [...queue]
 
     // Auto-detect parallele Jobs basierend auf verfügbaren CPU-Kernen
-    // Nutze 50-75% der Kerne für parallele Verarbeitung
+    // Da jedes Video bereits alle Kerne nutzt (-threads 0), nur 2-3 parallele Jobs
     const cpuCores = navigator.hardwareConcurrency || 4
-    const parallelJobs = Math.max(1, Math.min(Math.ceil(cpuCores * 0.6), 8))
+    const parallelJobs = Math.max(2, Math.min(Math.ceil(cpuCores / 4), 3))
 
     // Verarbeite Videos in Batches (parallel)
     for (let i = 0; i < queueToProcess.length; i += parallelJobs) {
