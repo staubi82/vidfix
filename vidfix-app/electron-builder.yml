@@ -12,5 +12,6 @@ linux:
     - deb
   category: Video
   executableName: vidfix-app
+  icon: build/icon.png
   synopsis: Video Transcoding Tool für DJI Action 5 Pro
   description: Moderne Desktop-App für Video-Transcoding mit DNxHR, ProRes und H.264 Support
