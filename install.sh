@@ -9,7 +9,14 @@ if [ ! -t 0 ] && [ -z "$VIDFIX_REEXEC" ]; then
     TEMP_SCRIPT=$(mktemp /tmp/vidfix-install.XXXXXX.sh)
     cat > "$TEMP_SCRIPT"
     chmod +x "$TEMP_SCRIPT"
-    VIDFIX_REEXEC=1 exec "$TEMP_SCRIPT" "$@"
+    # Führe mit stdin vom Terminal aus
+    if [ -t 1 ]; then
+        # stdout ist TTY, verwende es für stdin
+        exec "$TEMP_SCRIPT" "$@" < /dev/tty
+    else
+        # Kein TTY verfügbar, führe normal aus
+        VIDFIX_REEXEC=1 exec "$TEMP_SCRIPT" "$@"
+    fi
 fi
 
 APP_NAME="vidfix-app"
