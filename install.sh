@@ -4,6 +4,14 @@ set -e
 # VidFix Pro - Remote Installation Script
 # Usage: curl -sSL https://raw.githubusercontent.com/staubi82/vidfix/main/install.sh | bash
 
+# Wenn via Pipe ausgeführt, script in temp-Datei speichern und neu ausführen
+if [ ! -t 0 ] && [ -z "$VIDFIX_REEXEC" ]; then
+    TEMP_SCRIPT=$(mktemp /tmp/vidfix-install.XXXXXX.sh)
+    cat > "$TEMP_SCRIPT"
+    chmod +x "$TEMP_SCRIPT"
+    VIDFIX_REEXEC=1 exec "$TEMP_SCRIPT" "$@"
+fi
+
 APP_NAME="vidfix-app"
 REPO_OWNER="staubi82"
 REPO_NAME="vidfix"
@@ -283,7 +291,7 @@ uninstall_app() {
     fi
 
     # Bestätigung
-    read -p "Wirklich deinstallieren? [j/N]: " confirm < /dev/tty
+    read -p "Wirklich deinstallieren? [j/N]: " confirm
     if [ "$confirm" != "j" ] && [ "$confirm" != "J" ]; then
         print_info "Abgebrochen."
         exit 0
@@ -322,7 +330,7 @@ show_menu() {
     echo -e "  ${BOLD}3)${NC} Deinstallieren   - Vollständig entfernen"
     echo -e "  ${BOLD}4)${NC} Abbrechen"
     echo ""
-    read -p "Auswahl [1-4]: " choice < /dev/tty
+    read -p "Auswahl [1-4]: " choice
 
     case $choice in
         1) install_app ;;
