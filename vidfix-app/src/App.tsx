@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Folder, Play, Pause, X, Settings as SettingsIcon, Video, Cpu, HardDrive, Zap } from 'lucide-react'
+import { Folder, Play, Pause, X, Settings as SettingsIcon, Video, Cpu, HardDrive, Zap, ArrowRight } from 'lucide-react'
 import FileBrowser from './components/FileBrowser'
 import DirectoryModal from './components/DirectoryModal'
 import { TranscodeQueue } from './components/TranscodeQueue'
@@ -456,9 +456,11 @@ function App() {
         <div className="flex items-center gap-4">
           <span>VidFix Pro by Staubi V1.0.0</span>
           {currentDir && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-2">
               <Folder className="w-3 h-3" />
-              {currentDir}
+              <span>{currentDir}</span>
+              <ArrowRight className="w-3 h-3" />
+              <span>{settings.outputToNewDir ? `${currentDir}/transcoded` : currentDir}</span>
             </span>
           )}
         </div>
