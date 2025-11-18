@@ -191,66 +191,73 @@ function App() {
     const cpuCores = navigator.hardwareConcurrency || 4
     const parallelJobs = Math.max(2, Math.min(Math.ceil(cpuCores / 4), 3))
 
-    // Verarbeite Videos in Batches (parallel)
-    for (let i = 0; i < queueToProcess.length; i += parallelJobs) {
-      if (cancelRequestedRef.current) break
+    // Worker Pool Pattern: Kontinuierliches Nachfüllen statt Batches
+    let currentIndex = 0
 
-      // Erstelle Batch mit bis zu parallelJobs Videos
-      const batch = queueToProcess.slice(i, i + parallelJobs)
+    const processNextVideo = async (): Promise<void> => {
+      // Abbruch wenn keine Videos mehr oder Cancel
+      if (currentIndex >= queueToProcess.length || cancelRequestedRef.current) {
+        return
+      }
 
-      // Starte alle Videos im Batch parallel
-      const batchPromises = batch.map(async (item) => {
-        const itemId = item.id
+      const item = queueToProcess[currentIndex]
+      const itemId = item.id
+      currentIndex++
 
-        // Update Status zu 'processing'
-        setQueue(prev =>
-          prev.map((q) =>
-            q.id === itemId ? { ...q, status: 'processing' } : q
-          )
+      // Update Status zu 'processing'
+      setQueue(prev =>
+        prev.map((q) =>
+          q.id === itemId ? { ...q, status: 'processing' } : q
         )
+      )
 
-        try {
-          const result = await window.electronAPI.startTranscode({
-            files: [item.videoFile.path],
-            codec: settings.codec,
-            resolution: settings.resolution,
-            fps: settings.fps,
-            audio: settings.audio,
-            audioBitrate: settings.audioBitrate,
-            outputDir: currentDir,
-            outputToNewDir: settings.outputToNewDir,
-            filenamePattern: settings.filenamePattern,
-            deleteOriginal: settings.deleteOriginal
-          })
+      setCurrentProcessingIndex(currentIndex)
 
-          // Update Status basierend auf Erfolg
-          if (result.success) {
-            setQueue(prev =>
-              prev.map((q) =>
-                q.id === itemId ? { ...q, status: 'completed' } : q
-              )
-            )
-          } else {
-            setQueue(prev =>
-              prev.map((q) =>
-                q.id === itemId ? { ...q, status: 'error', error: 'Transcode fehlgeschlagen' } : q
-              )
-            )
-          }
-        } catch (error) {
+      try {
+        const result = await window.electronAPI.startTranscode({
+          files: [item.videoFile.path],
+          codec: settings.codec,
+          resolution: settings.resolution,
+          fps: settings.fps,
+          audio: settings.audio,
+          audioBitrate: settings.audioBitrate,
+          outputDir: currentDir,
+          outputToNewDir: settings.outputToNewDir,
+          filenamePattern: settings.filenamePattern,
+          deleteOriginal: settings.deleteOriginal
+        })
+
+        // Update Status basierend auf Erfolg
+        if (result.success) {
           setQueue(prev =>
             prev.map((q) =>
-              q.id === itemId ? { ...q, status: 'error', error: String(error) } : q
+              q.id === itemId ? { ...q, status: 'completed' } : q
+            )
+          )
+        } else {
+          setQueue(prev =>
+            prev.map((q) =>
+              q.id === itemId ? { ...q, status: 'error', error: 'Transcode fehlgeschlagen' } : q
             )
           )
         }
-      })
+      } catch (error) {
+        setQueue(prev =>
+          prev.map((q) =>
+            q.id === itemId ? { ...q, status: 'error', error: String(error) } : q
+          )
+        )
+      }
 
-      // Warte bis alle Videos im Batch fertig sind
-      await Promise.all(batchPromises)
-
-      setCurrentProcessingIndex(i + batch.length)
+      // Sobald ein Video fertig ist, starte das nächste (kontinuierliches Nachfüllen)
+      if (currentIndex < queueToProcess.length && !cancelRequestedRef.current) {
+        await processNextVideo()
+      }
     }
+
+    // Starte initial parallelJobs Videos gleichzeitig (Worker Pool)
+    const initialWorkers = Array.from({ length: parallelJobs }, () => processNextVideo())
+    await Promise.all(initialWorkers)
 
     setIsTranscoding(false)
     setIsPaused(false)
