@@ -3,6 +3,7 @@ import { join, basename, extname } from 'path'
 import { spawn, ChildProcess } from 'child_process'
 import { readdirSync, statSync, readFileSync, lstatSync, unlinkSync, mkdirSync, existsSync } from 'fs'
 import * as os from 'os'
+import { request as httpsRequest } from 'https'
 
 let mainWindow: BrowserWindow | null = null
 // Map für parallele Transcode-Prozesse: filePath → ChildProcess
@@ -471,7 +472,100 @@ function buildFfmpegArgs(
   return args
 }
 
+// Get current version from package.json
+function getCurrentVersion(): string {
+  try {
+    const packageJsonPath = join(__dirname, '../../package.json')
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
+    return packageJson.version || '0.0.0'
+  } catch (err) {
+    console.error('Error reading package.json:', err)
+    return '0.0.0'
+  }
+}
+
+// Get latest version from GitHub
+async function getLatestVersionFromGitHub(): Promise<string> {
+  return new Promise((resolve) => {
+    const options = {
+      hostname: 'api.github.com',
+      path: '/repos/staubi82/vidfix/releases/latest',
+      method: 'GET',
+      headers: {
+        'User-Agent': 'VidFix-App'
+      }
+    }
+
+    const req = httpsRequest(options, (res) => {
+      let data = ''
+
+      res.on('data', (chunk) => {
+        data += chunk
+      })
+
+      res.on('end', () => {
+        try {
+          if (res.statusCode === 200) {
+            const release = JSON.parse(data)
+            // Tag name is usually "v1.0.1" or "1.0.1"
+            const version = release.tag_name?.replace(/^v/, '') || '0.0.0'
+            resolve(version)
+          } else {
+            // If no releases or repo is private, fallback to current version
+            resolve('0.0.0')
+          }
+        } catch (err) {
+          console.error('Error parsing GitHub response:', err)
+          resolve('0.0.0')
+        }
+      })
+    })
+
+    req.on('error', (err) => {
+      console.error('Error fetching GitHub version:', err)
+      resolve('0.0.0')
+    })
+
+    // Timeout nach 5 Sekunden
+    req.setTimeout(5000, () => {
+      req.destroy()
+      resolve('0.0.0')
+    })
+
+    req.end()
+  })
+}
+
+// Compare versions (returns true if latestVersion > currentVersion)
+function isNewerVersion(currentVersion: string, latestVersion: string): boolean {
+  const parseCurrent = currentVersion.split('.').map(Number)
+  const parseLatest = latestVersion.split('.').map(Number)
+
+  for (let i = 0; i < 3; i++) {
+    const current = parseCurrent[i] || 0
+    const latest = parseLatest[i] || 0
+
+    if (latest > current) return true
+    if (latest < current) return false
+  }
+
+  return false
+}
+
 // IPC Handlers
+
+// Get version info (current + check for updates)
+ipcMain.handle('get-version-info', async () => {
+  const currentVersion = getCurrentVersion()
+  const latestVersion = await getLatestVersionFromGitHub()
+  const hasUpdate = isNewerVersion(currentVersion, latestVersion)
+
+  return {
+    currentVersion,
+    latestVersion,
+    hasUpdate
+  }
+})
 
 // Get system stats
 ipcMain.handle('get-system-stats', async () => {

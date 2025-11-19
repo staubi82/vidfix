@@ -50,6 +50,7 @@ function App() {
     useGPU: true
   })
   const [selectedProfile, setSelectedProfile] = useState<string>('custom')
+  const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null)
 
   useEffect(() => {
     window.electronAPI.onTranscodeProgress((data: TranscodeProgressData) => {
@@ -76,6 +77,11 @@ function App() {
     window.electronAPI.getHomeDir().then((dir) => {
       setHomeDir(dir)
       setBrowserDir(dir)
+    })
+
+    // Check for updates on app start
+    window.electronAPI.getVersionInfo().then((info) => {
+      setVersionInfo(info)
     })
   }, [])
 
@@ -454,7 +460,12 @@ function App() {
       {/* Status Bar */}
       <div className="h-8 bg-card border-t border-border flex items-center justify-between px-4 text-xs text-muted-foreground relative">
         <div className="flex items-center gap-4">
-          <span>VidFix Pro by Staubi V1.0.1</span>
+          <span>VidFix Pro by Staubi V{versionInfo?.currentVersion || '1.0.1'}</span>
+          {versionInfo?.hasUpdate && (
+            <span className="text-green-400 animate-pulse">
+              Update verfügbar (V{versionInfo.latestVersion})
+            </span>
+          )}
         </div>
 
         {/* Center: Directory Path */}

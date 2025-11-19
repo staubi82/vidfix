@@ -8,6 +8,7 @@ declare global {
       listDirectory: (dirPath: string, showHidden?: boolean) => Promise<DirectoryItem[]>
       getVideoInfo: (filePath: string) => Promise<any>
       getHomeDir: () => Promise<string>
+      getVersionInfo: () => Promise<VersionInfo>
       startTranscode: (options: TranscodeOptions) => Promise<{ success: boolean }>
       pauseTranscode: () => Promise<{ success: boolean }>
       resumeTranscode: () => Promise<{ success: boolean }>
@@ -75,5 +76,11 @@ declare global {
     status: 'waiting' | 'processing' | 'completed' | 'error'
     error?: string
     progress?: VideoProgress
+  }
+
+  interface VersionInfo {
+    currentVersion: string
+    latestVersion: string
+    hasUpdate: boolean
   }
 }

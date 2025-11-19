@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   listDirectory: (dirPath: string, showHidden: boolean = false) => ipcRenderer.invoke('list-directory', dirPath, showHidden),
   getVideoInfo: (filePath: string) => ipcRenderer.invoke('get-video-info', filePath),
   getHomeDir: () => ipcRenderer.invoke('get-home-dir'),
+  getVersionInfo: () => ipcRenderer.invoke('get-version-info'),
   startTranscode: (options: any) => ipcRenderer.invoke('start-transcode', options),
   pauseTranscode: () => ipcRenderer.invoke('pause-transcode'),
   resumeTranscode: () => ipcRenderer.invoke('resume-transcode'),
