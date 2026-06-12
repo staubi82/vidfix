@@ -8,6 +8,7 @@ declare global {
       listDirectory: (dirPath: string, showHidden?: boolean) => Promise<DirectoryItem[]>
       getVideoInfo: (filePath: string) => Promise<any>
       getHomeDir: () => Promise<string>
+      openExternal: (url: string) => Promise<{ success: boolean }>
       getVersionInfo: () => Promise<VersionInfo>
       startTranscode: (options: TranscodeOptions) => Promise<{ success: boolean }>
       pauseTranscode: () => Promise<{ success: boolean }>

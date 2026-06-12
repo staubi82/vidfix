@@ -462,9 +462,13 @@ function App() {
         <div className="flex items-center gap-4">
           <span>VidFix Pro by Staubi V{versionInfo?.currentVersion || '1.0.1'}</span>
           {versionInfo?.hasUpdate && (
-            <span className="text-green-400 animate-pulse">
+            <button
+              onClick={() => window.electronAPI.openExternal('https://github.com/staubi82/vidfix/releases/latest')}
+              className="text-green-400 animate-pulse hover:underline cursor-pointer"
+              title="Neue Version auf GitHub ansehen"
+            >
               Update verfügbar (V{versionInfo.latestVersion})
-            </span>
+            </button>
           )}
         </div>
 

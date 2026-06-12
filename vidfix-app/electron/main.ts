@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron'
 import { join, basename, extname, resolve as resolvePath } from 'path'
 import { spawn, ChildProcess } from 'child_process'
 import { readdirSync, statSync, readFileSync, lstatSync, unlinkSync, mkdirSync, existsSync } from 'fs'
@@ -592,6 +592,15 @@ ipcMain.handle('get-version-info', async () => {
 // Get system stats
 ipcMain.handle('get-system-stats', async () => {
   return await getSystemStats()
+})
+
+// Open a URL in the user's default browser
+ipcMain.handle('open-external', async (_, url: string) => {
+  if (!/^https:\/\/github\.com\//.test(url)) {
+    return { success: false }
+  }
+  await shell.openExternal(url)
+  return { success: true }
 })
 
 // Get home directory
