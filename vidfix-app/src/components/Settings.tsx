@@ -34,6 +34,7 @@ export default function Settings({ settings, onSettingsChange, selectedProfile }
     { value: 'prores', label: 'ProRes 422', desc: 'Apple Standard' },
     { value: 'h264', label: 'H.264', desc: 'Kompakt (MPEG-4 Baseline)' },
     { value: 'h265', label: 'H.265 (HEVC)', desc: 'Moderne Kompression (50% kleiner)' },
+    { value: 'h265_hq', label: 'HEVC HQ (VAAPI)', desc: 'Hohe Qualität für 4K60fps, deutlich kleiner als DNxHR' },
     { value: 'vp9', label: 'VP9', desc: 'Google Video Codec (lizenzfrei)' },
     { value: 'av1', label: 'AV1', desc: 'Beste Kompression (langsam)' }
   ]
@@ -146,7 +147,7 @@ export default function Settings({ settings, onSettingsChange, selectedProfile }
       </div>
 
       {/* GPU/CPU Mode (nur bei H.264/H.265) */}
-      {(settings.codec === 'h264' || settings.codec === 'h265') && (
+      {(settings.codec === 'h264' || settings.codec === 'h265' || settings.codec === 'h265_hq') && (
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm font-medium">
             <Cpu className="w-4 h-4 text-primary" />

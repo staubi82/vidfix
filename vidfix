@@ -352,6 +352,9 @@ estimate_space() {
     elif [[ "$TARGET_CODEC" == "h264" ]]; then
         # H.264: ~60-70% der Originalgröße
         echo $((total_size * 7 / 10))
+    elif [[ "$TARGET_CODEC" == "h265_hq" ]]; then
+        # HEVC HQ: ~70-90% der Originalgröße, aber deutlich kleiner als DNxHR
+        echo $((total_size * 8 / 10))
     else
         # DNxHR/ProRes: größer als Original
         echo $((total_size * 15 / 10))
@@ -738,6 +741,7 @@ if (( goto_file_search == 0 )); then
         echo "2) DNxHR SQ (Videoschnitt, DaVinci) - empfohlen!"
         echo "3) DNxHR HQ (höchste Qualität, Videoschnitt)"
         echo "4) ProRes 422 (Apple-Standard, Videoschnitt)"
+        echo "5) HEVC HQ (VAAPI) - hohe Qualität für 4K60fps, viel kleiner als DNxHR"
         read -rp "Auswahl [2]: " CODEC_SEL
         nav_check "$CODEC_SEL"
         CODEC_SEL=${CODEC_SEL:-2}
@@ -758,12 +762,17 @@ if (( goto_file_search == 0 )); then
                 CODEC_NAME="DNxHR HQ"
                 FILE_EXT="mov"
                 ;;
-            4) 
+            4)
                 TARGET_CODEC="prores"
                 CODEC_NAME="ProRes 422"
                 FILE_EXT="mov"
                 ;;
-            *) 
+            5)
+                TARGET_CODEC="h265_hq"
+                CODEC_NAME="HEVC HQ (VAAPI)"
+                FILE_EXT="mp4"
+                ;;
+            *)
                 TARGET_CODEC="dnxhr_sq"
                 CODEC_NAME="DNxHR SQ"
                 FILE_EXT="mov"
@@ -806,8 +815,12 @@ if (( goto_file_search == 0 )); then
         esac
 
         echo "Modus (q=quit, z=zurück):"
-        if [[ "$TARGET_CODEC" == "h264" ]]; then
-            echo "1) CPU (libx264)"
+        if [[ "$TARGET_CODEC" == "h264" || "$TARGET_CODEC" == "h265_hq" ]]; then
+            if [[ "$TARGET_CODEC" == "h264" ]]; then
+                echo "1) CPU (libx264)"
+            else
+                echo "1) CPU (libx265)"
+            fi
             echo "2) GPU (VAAPI)"
             read -rp "Auswahl [2]: " MODE
             nav_check "$MODE"
@@ -1119,6 +1132,34 @@ transcode_file() {
                       -c:v prores_ks -profile:v 2 \
                       -c:a "$AUDIO_CODEC" \
                       "$OUT")
+            fi
+        elif [[ "$TARGET_CODEC" == "h265_hq" ]]; then
+            if [[ "$MODE" == "2" ]]; then
+                # GPU: HEVC HQ via VAAPI, 10-bit für hohe Qualität
+                local vf_chain="format=p010le,hwupload"
+                if [[ -n "$SCALE_FILTER" ]]; then
+                    vf_chain="$SCALE_FILTER,format=p010le,hwupload"
+                fi
+                CMD=(ffmpeg -y -hwaccel vaapi -vaapi_device "$VAAPI_DEVICE" -i "$F" \
+                      -vf "$vf_chain" \
+                      -c:v hevc_vaapi -qp 18 -profile:v main10 \
+                      -c:a "$AUDIO_CODEC" \
+                      "$OUT")
+            else
+                # CPU: libx265, 10-bit, hohe Qualität
+                if [[ -n "$SCALE_FILTER" ]]; then
+                    CMD=(ffmpeg -y -i "$F" \
+                          -vf "$SCALE_FILTER,format=yuv420p10le" \
+                          -c:v libx265 -preset medium -crf 18 \
+                          -c:a "$AUDIO_CODEC" \
+                          "$OUT")
+                else
+                    CMD=(ffmpeg -y -i "$F" \
+                          -vf "format=yuv420p10le" \
+                          -c:v libx265 -preset medium -crf 18 \
+                          -c:a "$AUDIO_CODEC" \
+                          "$OUT")
+                fi
             fi
         fi
     else

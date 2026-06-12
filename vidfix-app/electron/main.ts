@@ -434,6 +434,28 @@ function buildFfmpegArgs(
         args.push('-c:v', 'libx265', '-preset', 'medium', '-crf', '28')
       }
       break
+    case 'h265_hq':
+      if (useGPU) {
+        // GPU-beschleunigtes HEVC Encoding mit VAAPI, hohe Qualität (4K60fps Grading)
+        const vaapiDevice = '/dev/dri/renderD128'
+
+        const filterIndex = args.indexOf('-vf')
+        if (filterIndex !== -1) {
+          const existingFilters = args[filterIndex + 1]
+          args[filterIndex + 1] = existingFilters + ',format=p010le,hwupload'
+        } else if (filters.length > 0) {
+          args.push('-vf', filters.join(',') + ',format=p010le,hwupload')
+        } else {
+          args.push('-vf', 'format=p010le,hwupload')
+        }
+
+        args.unshift('-hwaccel', 'vaapi', '-vaapi_device', vaapiDevice)
+        args.push('-c:v', 'hevc_vaapi', '-qp', '18', '-profile:v', 'main10')
+      } else {
+        // CPU-Encoding, hohe Qualität
+        args.push('-c:v', 'libx265', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p10le')
+      }
+      break
     case 'vp9':
       args.push('-c:v', 'libvpx-vp9', '-crf', '30', '-b:v', '0')
       break
