@@ -15,17 +15,17 @@ export const VIDEO_PROFILES: Record<string, VideoProfile> = {
     description: 'Optimiert für professionelle Videobearbeitung mit DaVinci Resolve',
     icon: 'Film',
     settings: {
-      codec: 'dnxhr_sq',
-      resolution: '1920x1080',
-      fps: '30',
+      codec: 'h265',
+      resolution: 'original',
+      fps: 'original',
       audio: 'pcm',
       audioBitrate: '192',
       preset: 'DaVinci Resolve',
       outputToNewDir: false,
-      filenamePattern: 'suffix',
-      deleteOriginal: false,
+      filenamePattern: 'original',
+      deleteOriginal: true,
       shutdownAfter: false,
-      useGPU: false
+      useGPU: true
     }
   },
   youtube: {

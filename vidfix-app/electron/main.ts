@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join, basename, extname } from 'path'
+import { join, basename, extname, resolve as resolvePath } from 'path'
 import { spawn, ChildProcess } from 'child_process'
 import { readdirSync, statSync, readFileSync, lstatSync, unlinkSync, mkdirSync, existsSync } from 'fs'
 import * as os from 'os'
@@ -806,8 +806,8 @@ ipcMain.handle('start-transcode', async (_, options: any) => {
           fps: currentFps
         })
 
-        // Delete original file if requested
-        if (options.deleteOriginal && options.filenamePattern !== 'original') {
+        // Delete original file if requested (never delete if input and output are the same file)
+        if (options.deleteOriginal && resolvePath(inputFile) !== resolvePath(outputPath)) {
           try {
             unlinkSync(inputFile)
           } catch (err) {
