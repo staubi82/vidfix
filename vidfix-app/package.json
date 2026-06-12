@@ -1,6 +1,6 @@
 {
   "name": "vidfix-app",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Moderne Desktop-App für Video-Transcoding",
   "main": "out/main/index.js",
   "scripts": {

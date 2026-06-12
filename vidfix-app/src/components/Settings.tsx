@@ -3,7 +3,7 @@ import { Film, Maximize, Headphones, ChevronDown, FolderOutput, FileText, Trash2
 import { getProfileById } from '../constants/profiles'
 
 interface TranscodeSettings {
-  codec: 'dnxhr_sq' | 'dnxhr_hq' | 'dnxhr_hqx' | 'h264' | 'h265' | 'prores' | 'vp9' | 'av1'
+  codec: 'dnxhr_sq' | 'dnxhr_hq' | 'dnxhr_hqx' | 'h264' | 'h265' | 'h265_hq' | 'prores' | 'vp9' | 'av1'
   resolution: '3840x2160' | '2560x1440' | '1920x1080' | '1280x720' | '854x480'
   fps: 'original' | '24' | '25' | '30' | '50' | '60' | '120'
   audio: 'pcm' | 'aac' | 'mp3' | 'flac' | 'opus' | 'vorbis' | 'copy'
