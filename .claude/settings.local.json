@@ -17,7 +17,12 @@
       "Bash(timeout 3 cat:*)",
       "Bash(bash)",
       "Bash(cat:*)",
-      "Bash(gtk-update-icon-cache:*)"
+      "Bash(gtk-update-icon-cache:*)",
+      "Bash(bash -n /home/staubi/Apps/VidFix/vidfix)",
+      "Bash(ffmpeg -h encoder=hevc_vaapi)",
+      "Bash(git restore *)",
+      "Bash(gh release *)",
+      "Bash(gh auth *)"
     ],
     "deny": [],
     "ask": []
